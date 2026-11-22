@@ -16,7 +16,7 @@ INSTALL (recommended)
    - Normally it installs for you only, in %LOCALAPPDATA%\Programs\ChatGPT Export Converter.
      No administrator rights are needed.
    - Run as administrator, it installs for all users, in C:\Program Files\ChatGPT Export Converter.
-   - Add /DESKTOP for a desktop shortcut too:  Install.cmd /DESKTOP
+   - It also puts a shortcut on the desktop. To skip that:  Install.cmd /NODESKTOP
 3. Start "ChatGPT Export Converter" from the Start menu.
 
 Or double-click ChatGPTExportConverter-@VERSION@-x64.msi to install for all users (needs administrator).

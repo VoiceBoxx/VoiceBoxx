@@ -1,7 +1,18 @@
 ChatGPT Export Converter - Changelog
 ====================================
 
-1.2.5  (@DATE@)  - Installer fix
+1.2.6  (@DATE@)  - Installer options
+  - MSI setup wizard: new "Create a desktop shortcut" option on the first page, checked by
+    default. The shortcut uses the program icon and goes on the Public desktop (all users).
+  - MSI setup wizard: "Start ChatGPT Export Converter now" on the last page is checked by default.
+    The program starts as the signed-in user, not as administrator.
+  - Silent MSI installs also add the desktop shortcut. Leave it out with DESKTOP_SHORTCUT=0, for
+    example: msiexec /i ChatGPTExportConverter-1.2.6-x64.msi /qn DESKTOP_SHORTCUT=0
+  - Install.cmd now also creates a desktop shortcut by default, like the MSI. New /NODESKTOP
+    switch leaves it out; /DESKTOP is still accepted.
+  - The program itself is the same as 1.2.4; only its version number changed to 1.2.6.
+
+1.2.5  (2026-11-22)  - Installer fix
   Fixed: double-clicking the 1.2.4 MSI seemed to do nothing. The MSI had no setup windows: after
   a brief "Preparing to install" box, the administrator (UAC) prompt opened behind other windows
   as a flashing shield on the taskbar, and a successful install ended without any message.

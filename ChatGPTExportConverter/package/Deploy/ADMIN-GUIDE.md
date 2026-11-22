@@ -85,8 +85,14 @@ the other: Install.cmd exits with 1638, and the MSI stops with a message (exit 1
 Per-machine, x64, installs to `%ProgramFiles%\ChatGPT Export Converter`, and adds a Start menu
 shortcut for all users. It does not need a reboot.
 
-Double-clicking the MSI opens a setup wizard: Welcome, then a progress bar, then Finished with an
-option to start the program. Windows asks for administrator permission when you click Install.
+Double-clicking the MSI opens a setup wizard:
+
+* **Welcome:** a **Create a desktop shortcut** option, checked by default.
+* **Progress bar.**
+* **Finished:** a **Start ChatGPT Export Converter now** option, checked by default. The
+  program starts as the signed-in user.
+
+Windows asks for administrator permission when you click Install.
 If the program is already installed, the wizard offers Repair or Remove. Silent installs (`/qn`)
 never show the wizard.
 
@@ -98,6 +104,9 @@ REM Uninstall
 msiexec /x @PRODUCTCODE@ /qn /norestart /l*v "%WINDIR%\Temp\ChatGPTExportConverter-uninstall.log"
 ```
 
+* **Desktop shortcut.** Silent installs add it too (Public desktop). Leave it out with
+  `DESKTOP_SHORTCUT=0`, for example
+  `msiexec /i "ChatGPTExportConverter-@VERSION@-x64.msi" /qn DESKTOP_SHORTCUT=0`.
 * **Install folder.** Override with `INSTALLDIR="D:\Apps\ChatGPT Export Converter"` if needed.
   Use a folder that standard users can't write to.
 * **Upgrades.** Every version shares the same UpgradeCode. Installing a newer MSI removes the
@@ -109,7 +118,7 @@ msiexec /x @PRODUCTCODE@ /qn /norestart /l*v "%WINDIR%\Temp\ChatGPTExportConvert
 ## 4. Install.cmd (script installer)
 
 ```
-Install.cmd [/S] [/ALLUSERS | /CURRENTUSER] [/DESKTOP] [/LOG "file"]
+Install.cmd [/S] [/ALLUSERS | /CURRENTUSER] [/NODESKTOP] [/LOG "file"]
 ```
 
 | Switch | Meaning |
@@ -118,7 +127,7 @@ Install.cmd [/S] [/ALLUSERS | /CURRENTUSER] [/DESKTOP] [/LOG "file"]
 | `/ALLUSERS` | `%ProgramFiles%\ChatGPT Export Converter`, Start menu for all users. Needs admin or SYSTEM. |
 | `/CURRENTUSER` | `%LOCALAPPDATA%\Programs\ChatGPT Export Converter`, no admin needed. Not allowed from SYSTEM. |
 | *(neither)* | `/ALLUSERS` when elevated, otherwise `/CURRENTUSER` |
-| `/DESKTOP` | Also create a desktop shortcut (Public desktop for all-users installs). |
+| `/NODESKTOP` | Don't create the desktop shortcut. By default one is created (on the Public desktop for all-users installs), as with the MSI. |
 | `/LOG "file"` | Log file. Default `%TEMP%\ChatGPTExportConverter-Install.log`, which is `C:\Windows\Temp` under SYSTEM. |
 
 | Exit code | Meaning |
@@ -134,7 +143,7 @@ What it changes:
 
 * copies `App\` to the target folder
 * writes `INSTALL-INFO.txt` there
-* creates the Start menu shortcut (and, with `/DESKTOP`, a desktop shortcut)
+* creates the Start menu and desktop shortcuts (no desktop shortcut with `/NODESKTOP`)
 * writes the Apps & Features entry `HKLM|HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall\ChatGPTExportConverter`
 * writes `HKLM|HKCU\Software\ChatGPTExportConverter` (`Version`, `InstallMethod`, `InstallDir`)
 
@@ -343,9 +352,10 @@ ChatGPTExportConverter.exe --version
 
 To move from Install.cmd to the MSI: run `Uninstall.cmd /S` first, then install the MSI.
 
-**Upgrading from 1.2.3 or 1.2.4.** 1.2.3 changed only the installers and still contained the
+**Upgrading from 1.2.3, 1.2.4 or 1.2.5.** 1.2.3 changed only the installers and still contained the
 1.2.2 program. 1.2.4 is the fixed program, but its MSI had no setup window. 1.2.5 adds the setup
-wizard and keeps the 1.2.4 program. The @VERSION@ MSI upgrades either version in place, and
+wizard and keeps the 1.2.4 program. 1.2.6 adds the desktop-shortcut and start-now options. The
+@VERSION@ MSI upgrades any of them in place, and
 running the @VERSION@ `Install.cmd /S` updates a script install. In Intune or ConfigMgr, set up
 @VERSION@ to supersede the earlier version (without uninstalling first). The full version history, with each
 version's MSI ProductCode, is in `VERSION.txt`.

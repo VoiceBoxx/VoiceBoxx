@@ -1,13 +1,13 @@
 @echo off
 REM ChatGPT Export Converter @VERSION@ - installer (no MSI needed). See Deploy\ADMIN-GUIDE.md.
 REM
-REM   Install.cmd [/S] [/ALLUSERS | /CURRENTUSER] [/DESKTOP] [/LOG "file"]
+REM   Install.cmd [/S] [/ALLUSERS | /CURRENTUSER] [/NODESKTOP] [/LOG "file"]
 REM
 REM   /S            Silent: no prompts, no pause. Use this from Intune, ConfigMgr, GPO, PDQ, etc.
 REM   /ALLUSERS     Install to %ProgramFiles% for every user (needs administrator / SYSTEM).
 REM   /CURRENTUSER  Install to %LOCALAPPDATA%\Programs for the current user only (no admin needed).
 REM                 Default: /ALLUSERS when elevated, otherwise /CURRENTUSER.
-REM   /DESKTOP      Also create a desktop shortcut.
+REM   /NODESKTOP    Don't create a desktop shortcut (one is created by default, as in the MSI).
 REM   /LOG "file"   Log file. Default: %TEMP%\ChatGPTExportConverter-Install.log
 REM
 REM Exit codes: 0 installed | 1 bad option or package incomplete | 5 /ALLUSERS without admin rights
@@ -33,7 +33,7 @@ set "SYS=%SystemRoot%\System32"
 set "SRC=%~dp0App"
 set "SILENT="
 set "SCOPE="
-set "DESKTOP="
+set "DESKTOP=1"
 set "LOG=%TEMP%\ChatGPTExportConverter-Install.log"
 set "RC=0"
 
@@ -44,6 +44,7 @@ if /i "%~1"=="/Q"           (set "SILENT=1"          & shift & goto args)
 if /i "%~1"=="/ALLUSERS"    (set "SCOPE=ALLUSERS"    & shift & goto args)
 if /i "%~1"=="/CURRENTUSER" (set "SCOPE=CURRENTUSER" & shift & goto args)
 if /i "%~1"=="/DESKTOP"     (set "DESKTOP=1"         & shift & goto args)
+if /i "%~1"=="/NODESKTOP"   (set "DESKTOP="          & shift & goto args)
 if /i "%~1"=="/LOG"         (set "LOG=%~2"           & shift & shift & goto args)
 if "%~1"=="/?" goto usage
 if /i "%~1"=="/H" goto usage
@@ -143,7 +144,7 @@ goto end
 
 :usage
 echo.
-echo   Install.cmd [/S] [/ALLUSERS ^| /CURRENTUSER] [/DESKTOP] [/LOG "file"]
+echo   Install.cmd [/S] [/ALLUSERS ^| /CURRENTUSER] [/NODESKTOP] [/LOG "file"]
 echo   See the top of Install.cmd or Deploy\ADMIN-GUIDE.md for details and exit codes.
 goto end
 

@@ -35,6 +35,7 @@
         <Directory Id="INSTALLDIR" Name="ChatGPT Export Converter"/>
       </Directory>
       <Directory Id="ProgramMenuFolder"/>
+      <Directory Id="DesktopFolder"/>
     </Directory>
 
     <DirectoryRef Id="INSTALLDIR">
@@ -60,6 +61,23 @@
         <RegistryValue Root="HKLM" Key="Software\ChatGPTExportConverter" Name="StartMenuShortcut" Type="integer" Value="1" KeyPath="yes"/>
       </Component>
     </DirectoryRef>
+
+    <!-- Desktop shortcut: its own feature so the wizard checkbox (and DESKTOP_SHORTCUT=0 on the
+         command line) can leave it out. The feature condition is added by add_msi_ui.py. -->
+    <Property Id="DESKTOP_SHORTCUT" Value="1"/>
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="cmpDesktop" Guid="5B2E8C41-7F3A-4D19-9E6B-0C8A2F4D7E15" Win64="yes">
+        <Shortcut Id="scDesktop" Name="ChatGPT Export Converter"
+                  Description="Convert a ChatGPT data export to a Word and PDF archive"
+                  Target="[INSTALLDIR]ChatGPTExportConverter.exe" WorkingDirectory="INSTALLDIR"
+                  Icon="AppIcon.ico" IconIndex="0"/>
+        <RegistryValue Root="HKLM" Key="Software\ChatGPTExportConverter" Name="DesktopShortcut" Type="integer" Value="1" KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+
+    <Feature Id="DesktopShortcut" Title="Desktop shortcut" Level="1">
+      <ComponentRef Id="cmpDesktop"/>
+    </Feature>
 
     <Feature Id="Main" Title="ChatGPT Export Converter" Level="1">
       <ComponentGroupRef Id="AppFiles"/>

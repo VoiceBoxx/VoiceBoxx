@@ -7,7 +7,8 @@ seemed to do nothing, and a successful install ended without any message.
 
 This adds the standard Windows Installer UI tables (the same design as WiX's WixUI_Minimal):
 
-  Welcome (Install, with the admin shield) -> Progress -> Finished (option to start the program)
+  Welcome (pre-checked "Create a desktop shortcut"; Install, with the admin shield)
+    -> Progress -> Finished (pre-checked "Start ChatGPT Export Converter now")
   Maintenance (Repair / Remove) when it is already installed
   Cancel confirmation, "cancelled" and "failed" pages, and the error dialog for installer messages
 
@@ -66,14 +67,19 @@ def page(dlg, heading, body, body_h=120):
 
 
 # ---- Welcome ------------------------------------------------------------------------------
-dialog("WelcomeDlg", f"{APP} Setup", "Install", "Install", "Cancel")
+dialog("WelcomeDlg", f"{APP} Setup", "Desktop", "Install", "Cancel")
 page("WelcomeDlg", f"Install {APP} [ProductVersion]",
      f"This installs {APP} for all users of this computer, in:\r\n[INSTALLDIR]\r\n\r\n"
      "Click Install to continue. Windows will ask for administrator permission.\r\n\r\n"
      "The program works offline and makes no network connections.")
+ctl("WelcomeDlg", "Desktop", "CheckBox", 64, 190, 290, 14, VIS | EN, prop="DESKTOP_SHORTCUT",
+    text="Create a &desktop shortcut", nxt="Install")
 ctl("WelcomeDlg", "Install", "PushButton", 236, BTN_Y, BTN_W, BTN_H, BTN | SHIELD, text="&Install", nxt="Cancel")
-ctl("WelcomeDlg", "Cancel", "PushButton", 304, BTN_Y, BTN_W, BTN_H, BTN, text="Cancel", nxt="Install")
-ev("WelcomeDlg", "Install", "EndDialog", "Return")
+ctl("WelcomeDlg", "Cancel", "PushButton", 304, BTN_Y, BTN_W, BTN_H, BTN, text="Cancel", nxt="Desktop")
+# The checkbox decides whether the DesktopShortcut feature is installed.
+ev("WelcomeDlg", "Install", "AddLocal", "DesktopShortcut", 'DESKTOP_SHORTCUT = "1"', order=1)
+ev("WelcomeDlg", "Install", "Remove", "DesktopShortcut", 'NOT (DESKTOP_SHORTCUT = "1")', order=2)
+ev("WelcomeDlg", "Install", "EndDialog", "Return", order=3)
 ev("WelcomeDlg", "Cancel", "SpawnDialog", "CancelDlg")
 
 # ---- Maintenance (already installed) ------------------------------------------------------
@@ -205,7 +211,11 @@ def main():
         write_idt(d, "TextStyle", ["TextStyle", "FaceName", "Size", "Color", "StyleBits"],
                   ["s72", "s32", "i2", "I4", "I2"], ["TextStyle"],
                   [("UIFontNormal", "Segoe UI", 9, "", ""), ("UIFontTitle", "Segoe UI", 13, "", 1)])
-        write_idt(d, "CheckBox", ["Property", "Value"], ["s72", "S64"], ["Property"], [("LAUNCHAPP", "1")])
+        write_idt(d, "CheckBox", ["Property", "Value"], ["s72", "S64"], ["Property"],
+                  [("LAUNCHAPP", "1"), ("DESKTOP_SHORTCUT", "1")])
+        # Silent installs: msiexec ... DESKTOP_SHORTCUT=0 leaves the desktop shortcut out.
+        write_idt(d, "Condition", ["Feature_", "Level", "Condition"], ["s38", "i2", "S255"],
+                  ["Feature_", "Level"], [("DesktopShortcut", 0, 'DESKTOP_SHORTCUT = "0"')])
         write_idt(d, "Binary", ["Name", "Data"], ["s72", "v0"], ["Name"], [("AppIconBin", "AppIconBin.ico")])
 
         cols, types, keys, rows = read_rows(msi, "Property")
@@ -213,6 +223,12 @@ def main():
         for k, v in (("DefaultUIFont", "UIFontNormal"), ("ErrorDialog", "ErrorDlg"), ("LAUNCHAPP", "1")):
             if k not in have:
                 rows.append([k, v])
+        # Public properties that must reach the elevated (server) side of the install.
+        for r in rows:
+            if r[0] == "SecureCustomProperties" and "DESKTOP_SHORTCUT" not in r[1].split(";"):
+                r[1] = r[1] + ";DESKTOP_SHORTCUT"
+        if "SecureCustomProperties" not in have:
+            rows.append(["SecureCustomProperties", "DESKTOP_SHORTCUT"])
         write_idt(d, "Property", cols, types, keys, rows)
 
         cols, types, keys, rows = read_rows(msi, "InstallUISequence")
@@ -230,7 +246,7 @@ def main():
         write_idt(d, "CustomAction", cols, types, keys, rows)
 
         tables = ["Binary", "TextStyle", "Dialog", "Control", "ControlEvent", "ControlCondition",
-                  "EventMapping", "CheckBox", "Property", "InstallUISequence", "CustomAction"]
+                  "EventMapping", "CheckBox", "Condition", "Property", "InstallUISequence", "CustomAction"]
         cmd = ["msibuild", msi]
         for t in tables:
             cmd += ["-i", f"{t}.idt"]

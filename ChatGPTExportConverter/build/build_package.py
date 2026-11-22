@@ -38,6 +38,7 @@ PRODUCT_CODES = {
     "1.2.3": "{DF5DD0DA-4998-4F67-B1A4-59D03E0DDAAF}",   # packaging-only release
     "1.2.4": "{B61D09F0-9219-4223-A7FF-6DF2D5E3AF64}",   # no setup wizard (looked like it did nothing)
     "1.2.5": "{1C87D975-25C3-4260-8426-9C3DDE98613F}",
+    "1.2.6": "{F76E4101-A33D-431C-816D-34BDD3962DA8}",
 }
 TEXT_EXT = {".cmd", ".txt", ".md", ".ps1", ".svg"}
 CRLF_EXT = {".cmd", ".txt", ".md", ".ps1"}
