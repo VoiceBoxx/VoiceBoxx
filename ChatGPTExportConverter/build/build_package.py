@@ -35,7 +35,8 @@ UPGRADE_CODE = "{65CBA05F-E4ED-49B7-B781-4C000A27306F}"   # never change: ties a
 # A new ProductCode for every version (MSI major upgrade). Add a fresh GUID here before a release:
 #   python3 -c "import uuid; print(str(uuid.uuid4()).upper())"
 PRODUCT_CODES = {
-    "1.2.3": "{DF5DD0DA-4998-4F67-B1A4-59D03E0DDAAF}",
+    "1.2.3": "{DF5DD0DA-4998-4F67-B1A4-59D03E0DDAAF}",   # packaging-only release
+    "1.2.4": "{B61D09F0-9219-4223-A7FF-6DF2D5E3AF64}",
 }
 TEXT_EXT = {".cmd", ".txt", ".md", ".ps1", ".svg"}
 CRLF_EXT = {".cmd", ".txt", ".md", ".ps1"}

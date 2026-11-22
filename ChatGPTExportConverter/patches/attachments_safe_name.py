@@ -1,4 +1,4 @@
-# Replacement for attachments.safe_name() in the frozen program (1.2.3).
+# Replacement for attachments.safe_name() in the frozen program (1.2.4).
 # Only this function's code object is swapped; it keeps the module's globals (re) and its
 # default limit=120. Adds: Windows reserved device names (CON, NUL, COM1, ...) get a "_" prefix,
 # and trailing dots/spaces left by truncation are removed (Windows drops them silently).

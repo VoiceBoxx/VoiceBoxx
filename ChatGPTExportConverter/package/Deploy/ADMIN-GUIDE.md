@@ -338,6 +338,12 @@ ChatGPTExportConverter.exe --version
 
 To move from Install.cmd to the MSI: run `Uninstall.cmd /S` first, then install the MSI.
 
+**Upgrading from 1.2.3.** 1.2.3 changed only the installers and still contained the 1.2.2
+program; 1.2.4 is the fixed program. The 1.2.4 MSI upgrades a 1.2.3 MSI install in place, and
+running the 1.2.4 `Install.cmd /S` updates a 1.2.3 script install. In Intune or ConfigMgr, set up
+1.2.4 to supersede 1.2.3 (without uninstalling first). The full version history, with each
+version's MSI ProductCode, is in `VERSION.txt`.
+
 ## 14. Verifying the package
 
 ```powershell

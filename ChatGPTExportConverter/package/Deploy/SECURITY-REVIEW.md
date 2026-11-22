@@ -77,7 +77,7 @@ Checks on the result:
 | F11 | Low | Only pypdfium2's licence files were shipped. BSD and MIT components require their notices. | **Fixed.** Full texts in `App\LICENSES`, taken from the official distributions. |
 | F12 | Low | Windows reserved device names (`CON`, `NUL`, `COM1`, ...) were not handled in attachment names. | **Fixed.** Prefixed with `_`. Trailing dots and spaces after truncation are also removed. |
 | F13 | Info | Not DPI-aware: blurry on scaled displays. | **Fixed.** A start-up hook declares system DPI awareness and scales the window size to match. |
-| F14 | Info | No `CompanyName`/`LegalCopyright` in the version resource; the .exe said 1.2.2. | **Fixed.** FileVersion/ProductVersion 1.2.3 with publisher and copyright. The PE checksum is updated. |
+| F14 | Info | No `CompanyName`/`LegalCopyright` in the version resource; the .exe said 1.2.2. | **Fixed.** FileVersion/ProductVersion @VERSION@ with publisher and copyright. The PE checksum is updated. |
 | F15 | Info | Each `conversations*.json` and attachment is read into memory whole. | **Accepted.** The input is the user's own export, and a size cap would reject large legitimate exports. Use a computer with plenty of RAM for exports of several GB. |
 
 ## What was already done well

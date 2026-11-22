@@ -1,4 +1,4 @@
-# ChatGPT Export Converter 1.2.3 start-up fixes, run by the PyInstaller bootloader before app.py.
+# ChatGPT Export Converter 1.2.4 start-up fixes, run by the PyInstaller bootloader before app.py.
 #
 # High-DPI: the 1.2.2 build is not DPI-aware, so Windows bitmap-stretches the window on scaled
 # displays (blurry text). Declare system DPI awareness, then scale the window sizes the program

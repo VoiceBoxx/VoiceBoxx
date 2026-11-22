@@ -1,10 +1,12 @@
 ChatGPT Export Converter - Changelog
 ====================================
 
-1.2.3  (@DATE@)  - Fixes and enterprise deployment release
+1.2.4  (@DATE@)  - Program fixes
+  Replaces 1.2.3. Both were released on the same day; 1.2.4 is the first version in which the
+  program itself changed. The MSI upgrades 1.2.3 in place.
 
   Program
-  - Version 1.2.3 everywhere: the window, --version, and the program file's Properties > Details,
+  - Version 1.2.4 everywhere: the window, --version, and the program file's Properties > Details,
     which now also show the publisher (CompanyName) and copyright.
   - Security: the optional Word PDF engine starts PowerShell by its full path, and LibreOffice is
     looked up only in Program Files and absolute PATH folders, never in the current folder. A
@@ -24,6 +26,17 @@ ChatGPT Export Converter - Changelog
   - Full licence texts for every bundled open-source component, in the program folder's
     LICENSES folder.
 
+  Package
+  - The MSI now refuses to install over a copy installed with Install.cmd, matching Install.cmd's
+    existing check, so the two can't end up mixed in one folder.
+  - The build can Authenticode-sign the program and the MSI with a company certificate.
+  - Install.cmd warns if any Apps & Features or registry value could not be written.
+  - Uninstall.cmd also removes the new LICENSES folder.
+
+1.2.3  (2026-11-22)  - Enterprise deployment release
+  The program itself was unchanged: ChatGPTExportConverter.exe was the 1.2.2 build and still
+  reported 1.2.2. Only the package changed.
+
   New
   - MSI installer (ChatGPTExportConverter-1.2.3-x64.msi) for Intune, Configuration Manager, Group
     Policy and other tools: per-machine, silent with /qn, upgrades older MSI versions in place,
@@ -35,9 +48,6 @@ ChatGPT Export Converter - Changelog
   - Deploy\Icons: the program icon (app.ico, logo.svg) and PNGs from 16 to 512 px for Intune
     and Software Center.
   - VERSION.txt in the package and in the program folder.
-  - MSI refuses to install over a copy installed with Install.cmd (and Install.cmd refuses to
-    install over the MSI), so the two can't end up mixed in one folder.
-  - The build can Authenticode-sign the program and the MSI with a company certificate.
 
   Install.cmd
   - Fixed: the "silent install" described in 1.2.2 was not silent; it stopped at "Press any key",
@@ -50,7 +60,7 @@ ChatGPT Export Converter - Changelog
   - Fixed: started from a 32-bit deployment agent, it installed into "Program Files (x86)".
   - Refuses /CURRENTUSER from the SYSTEM account instead of installing into the system profile.
   - Calls Windows tools by full path, and detects admin rights even when the Server service
-    is disabled. Reports a warning if any Apps & Features value could not be written.
+    is disabled.
   - Refuses to install over an MSI installation.
 
   Uninstall.cmd

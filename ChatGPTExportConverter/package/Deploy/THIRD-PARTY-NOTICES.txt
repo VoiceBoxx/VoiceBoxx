@@ -12,7 +12,7 @@ Component             Version   Licence                                 Project
 CPython runtime       3.14.10   PSF-2.0                                 https://www.python.org/
   incl. expat, mpdecimal, libffi, zlib, bzip2, liblzma (xz), zstd, libtommath, HACL* (bundled
   with CPython; covered by App\LICENSES\Python-3.14.10 (and bundled C libraries).txt)
-  OpenSSL was removed in 1.2.3; the program does not use it.
+  OpenSSL was removed in 1.2.4; the program does not use it.
 Tcl / Tk              9.0.4     TCL (BSD-style)                         https://www.tcl-lang.org/
 Microsoft Visual C++  14.x      Microsoft VC++ Redistributable terms    https://visualstudio.microsoft.com/
   runtime (VCRUNTIME140.dll, VCRUNTIME140_1.dll)

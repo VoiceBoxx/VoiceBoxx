@@ -3,7 +3,7 @@
 With either engine the PDF is a page-for-page copy of the Word file. The built-in ReportLab
 renderer is used when neither is available.
 
-1.2.3 (replaces the 1.2.2 module inside the frozen program):
+1.2.4 (replaces the 1.2.2 module inside the frozen program):
 - PowerShell is started by its full path, and soffice.exe is looked up only in absolute PATH
   entries and Program Files, never in the current directory (no search-order hijacking).
 - Word: macros are force-disabled for the automation session, the timeout scales with the

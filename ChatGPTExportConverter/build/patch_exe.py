@@ -12,7 +12,7 @@ Run with Python 3.14 (same bytecode magic as the frozen program). Changes:
   PE resources
     version info  FileVersion/ProductVersion = --version, adds CompanyName and LegalCopyright (F14)
 
-  python3.14 patch_exe.py IN.exe OUT.exe --version 1.2.3 --company "VoiceBoxx"
+  python3.14 patch_exe.py IN.exe OUT.exe --version 1.2.4 --company "VoiceBoxx"
   python3.14 patch_exe.py IN.exe --selftest     # proves the archive writer is byte-exact
 
 Needs: pefile.

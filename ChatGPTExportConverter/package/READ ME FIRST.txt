@@ -1,4 +1,4 @@
-ChatGPT Export Converter 1.2.3
+ChatGPT Export Converter @VERSION@
 ==============================
 
 Everything the program needs is in this package. Python does NOT need to be installed, and
@@ -19,7 +19,7 @@ INSTALL (recommended)
    - Add /DESKTOP for a desktop shortcut too:  Install.cmd /DESKTOP
 3. Start "ChatGPT Export Converter" from the Start menu.
 
-Or double-click ChatGPTExportConverter-1.2.3-x64.msi to install for all users (needs administrator).
+Or double-click ChatGPTExportConverter-@VERSION@-x64.msi to install for all users (needs administrator).
 
 To remove it: Settings > Apps > ChatGPT Export Converter > Uninstall.
 Archives you've created are never touched.

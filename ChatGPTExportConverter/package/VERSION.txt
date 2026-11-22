@@ -1,7 +1,22 @@
-1.2.3
-Product:        ChatGPT Export Converter
-Package:        1.2.3 (released @DATE@)
-Program file:   ChatGPTExportConverter.exe, FileVersion 1.2.3 (shown in the window and with --version)
-MSI:            ChatGPTExportConverter-1.2.3-x64.msi, ProductVersion 1.2.3
+1.2.4
+Product:         ChatGPT Export Converter
+Package:         @VERSION@ (released @DATE@)
+Program file:    ChatGPTExportConverter.exe, FileVersion @VERSION@ (shown in the window and with --version)
+MSI:             ChatGPTExportConverter-@VERSION@-x64.msi, ProductVersion @VERSION@
 MSI ProductCode: @PRODUCTCODE@
-MSI UpgradeCode: @UPGRADECODE@
+MSI UpgradeCode: @UPGRADECODE@  (the same for every version)
+
+Version history (details in CHANGELOG.txt)
+------------------------------------------
+Version  Released    Program (.exe)  Summary                                        MSI ProductCode
+-------  ----------  --------------  ---------------------------------------------  --------------------------------------
+1.2.4    @DATE@  1.2.4           Program fixes: security, Word/LibreOffice      {B61D09F0-9219-4223-A7FF-6DF2D5E3AF64}
+                                     time-outs, device names, high-DPI, -15 MB,
+                                     licence texts, version info, signing support
+1.2.3    2026-11-22  1.2.2           Enterprise deployment: MSI, silent             {DF5DD0DA-4998-4F67-B1A4-59D03E0DDAAF}
+                                     Install.cmd/Uninstall.cmd, Deploy folder
+1.2.2    2026-11-21  1.2.2           Changelog included in the package              (no MSI)
+1.2.1    2026-11-21  1.2.1           New logo and icon                              (no MSI)
+1.2.0    2026-11-21  1.2.0           Self-contained package, Install.cmd            (no MSI)
+1.1.0    2026-11-20  1.1.0           Pages per volume, version number               (no MSI)
+1.0.0    2026-11-13  1.0.0           First release                                  (no MSI)
