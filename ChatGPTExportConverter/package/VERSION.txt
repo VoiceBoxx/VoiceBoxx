@@ -1,4 +1,4 @@
-1.2.4
+1.2.5
 Product:         ChatGPT Export Converter
 Package:         @VERSION@ (released @DATE@)
 Program file:    ChatGPTExportConverter.exe, FileVersion @VERSION@ (shown in the window and with --version)
@@ -10,7 +10,9 @@ Version history (details in CHANGELOG.txt)
 ------------------------------------------
 Version  Released    Program (.exe)  Summary                                        MSI ProductCode
 -------  ----------  --------------  ---------------------------------------------  --------------------------------------
-1.2.4    @DATE@  1.2.4           Program fixes: security, Word/LibreOffice      {B61D09F0-9219-4223-A7FF-6DF2D5E3AF64}
+1.2.5    @DATE@  1.2.5           MSI setup wizard (1.2.4 MSI showed no window   {1C87D975-25C3-4260-8426-9C3DDE98613F}
+                                     and seemed to do nothing); program unchanged
+1.2.4    2026-11-22  1.2.4           Program fixes: security, Word/LibreOffice      {B61D09F0-9219-4223-A7FF-6DF2D5E3AF64}
                                      time-outs, device names, high-DPI, -15 MB,
                                      licence texts, version info, signing support
 1.2.3    2026-11-22  1.2.2           Enterprise deployment: MSI, silent             {DF5DD0DA-4998-4F67-B1A4-59D03E0DDAAF}

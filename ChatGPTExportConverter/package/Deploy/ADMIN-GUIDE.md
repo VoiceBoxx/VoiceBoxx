@@ -85,6 +85,11 @@ the other: Install.cmd exits with 1638, and the MSI stops with a message (exit 1
 Per-machine, x64, installs to `%ProgramFiles%\ChatGPT Export Converter`, and adds a Start menu
 shortcut for all users. It does not need a reboot.
 
+Double-clicking the MSI opens a setup wizard: Welcome, then a progress bar, then Finished with an
+option to start the program. Windows asks for administrator permission when you click Install.
+If the program is already installed, the wizard offers Repair or Remove. Silent installs (`/qn`)
+never show the wizard.
+
 ```bat
 REM Install (silent, with verbose log)
 msiexec /i "ChatGPTExportConverter-@VERSION@-x64.msi" /qn /norestart /l*v "%WINDIR%\Temp\ChatGPTExportConverter-@VERSION@-install.log"
@@ -338,10 +343,11 @@ ChatGPTExportConverter.exe --version
 
 To move from Install.cmd to the MSI: run `Uninstall.cmd /S` first, then install the MSI.
 
-**Upgrading from 1.2.3.** 1.2.3 changed only the installers and still contained the 1.2.2
-program; 1.2.4 is the fixed program. The 1.2.4 MSI upgrades a 1.2.3 MSI install in place, and
-running the 1.2.4 `Install.cmd /S` updates a 1.2.3 script install. In Intune or ConfigMgr, set up
-1.2.4 to supersede 1.2.3 (without uninstalling first). The full version history, with each
+**Upgrading from 1.2.3 or 1.2.4.** 1.2.3 changed only the installers and still contained the
+1.2.2 program. 1.2.4 is the fixed program, but its MSI had no setup window. 1.2.5 adds the setup
+wizard and keeps the 1.2.4 program. The @VERSION@ MSI upgrades either version in place, and
+running the @VERSION@ `Install.cmd /S` updates a script install. In Intune or ConfigMgr, set up
+@VERSION@ to supersede the earlier version (without uninstalling first). The full version history, with each
 version's MSI ProductCode, is in `VERSION.txt`.
 
 ## 14. Verifying the package
@@ -365,6 +371,7 @@ also has `.sha256` files next to the zip and the MSI. Check those with
 
 | Symptom | Cause and fix |
 |---|---|
+| Double-clicking the MSI seems to do nothing (1.2.4 only) | The 1.2.4 MSI had no setup window, and the administrator prompt opened behind other windows (look for a flashing shield on the taskbar). Use 1.2.5 or later, which has a setup wizard. |
 | Install from Intune or ConfigMgr times out | `Install.cmd` used without `/S`. Add `/S`, or use the MSI. |
 | Exit 1618 | The program is open on the device. It's retried automatically (Intune), or close it. |
 | Exit 1638 from Install.cmd | The MSI version is installed. Use msiexec, or uninstall it first. |

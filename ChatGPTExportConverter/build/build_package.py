@@ -36,7 +36,8 @@ UPGRADE_CODE = "{65CBA05F-E4ED-49B7-B781-4C000A27306F}"   # never change: ties a
 #   python3 -c "import uuid; print(str(uuid.uuid4()).upper())"
 PRODUCT_CODES = {
     "1.2.3": "{DF5DD0DA-4998-4F67-B1A4-59D03E0DDAAF}",   # packaging-only release
-    "1.2.4": "{B61D09F0-9219-4223-A7FF-6DF2D5E3AF64}",
+    "1.2.4": "{B61D09F0-9219-4223-A7FF-6DF2D5E3AF64}",   # no setup wizard (looked like it did nothing)
+    "1.2.5": "{1C87D975-25C3-4260-8426-9C3DDE98613F}",
 }
 TEXT_EXT = {".cmd", ".txt", ".md", ".ps1", ".svg"}
 CRLF_EXT = {".cmd", ".txt", ".md", ".ps1"}
@@ -257,6 +258,9 @@ def main():
         os.makedirs(mwork)
         build_msi(stage, a.version, a.publisher, os.path.join(stage, msi_name), mwork,
                   PRODUCT_CODES[a.version])
+        # wixl can't author dialogs; add the setup wizard before signing.
+        subprocess.run([sys.executable, "-I", os.path.join(HERE, "add_msi_ui.py"), os.path.join(stage, msi_name),
+                        os.path.join(stage, "App", "ChatGPTExportConverter.ico")], check=True)
         sign(os.path.join(stage, msi_name), a)
 
     write_checksums(stage, a.version)

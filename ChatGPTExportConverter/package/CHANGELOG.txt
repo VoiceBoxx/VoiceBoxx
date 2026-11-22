@@ -1,7 +1,23 @@
 ChatGPT Export Converter - Changelog
 ====================================
 
-1.2.4  (@DATE@)  - Program fixes
+1.2.5  (@DATE@)  - Installer fix
+  Fixed: double-clicking the 1.2.4 MSI seemed to do nothing. The MSI had no setup windows: after
+  a brief "Preparing to install" box, the administrator (UAC) prompt opened behind other windows
+  as a flashing shield on the taskbar, and a successful install ended without any message.
+
+  - The MSI now has a setup wizard with the program icon on every page: Welcome (Install, with
+    the administrator shield) -> progress bar -> Finished, with "Start ChatGPT Export Converter
+    now" (the program starts as the signed-in user, not as administrator).
+  - Opening the MSI when the program is already installed offers Repair or Remove.
+  - Cancel confirmation, and clear "Setup was cancelled" and "Setup failed" pages. The failed page
+    shows the exact command that writes a log explaining the error.
+  - Silent installs (msiexec /qn, Intune, ConfigMgr, GPO) are unchanged: they never show these
+    windows.
+  - Upgrades 1.2.3 and 1.2.4 MSI installs in place.
+  - The program itself is the same as 1.2.4; only its version number changed to 1.2.5.
+
+1.2.4  (2026-11-22)  - Program fixes
   Replaces 1.2.3. Both were released on the same day; 1.2.4 is the first version in which the
   program itself changed. The MSI upgrades 1.2.3 in place.
 
