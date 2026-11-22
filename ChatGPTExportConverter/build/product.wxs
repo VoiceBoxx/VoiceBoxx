@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ChatGPT Export Converter - per-machine x64 MSI. Built with wixl (msitools); see build_package.py. -->
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="$(var.ProductCode)"
+           Name="ChatGPT Export Converter"
+           Language="1033"
+           Version="$(var.Version)"
+           Manufacturer="$(var.Publisher)"
+           UpgradeCode="65CBA05F-E4ED-49B7-B781-4C000A27306F">
+
+    <Package InstallerVersion="500" Compressed="yes" InstallScope="perMachine"
+             Description="ChatGPT Export Converter $(var.Version)"
+             Comments="Converts a ChatGPT data export into a Word and PDF archive. Works offline."
+             Manufacturer="$(var.Publisher)"/>
+
+    <Media Id="1" Cabinet="app.cab" EmbedCab="yes"/>
+
+    <!-- Upgrades replace any older version; installing an older version over a newer one is blocked. -->
+    <MajorUpgrade DowngradeErrorMessage="A newer version of ChatGPT Export Converter is already installed."/>
+
+    <Icon Id="AppIcon.ico" SourceFile="$(var.IconFile)"/>
+    <Property Id="ARPPRODUCTICON" Value="AppIcon.ico"/>
+    <Property Id="ARPNOMODIFY" Value="1"/>
+    <Property Id="ARPCOMMENTS" Value="Converts a ChatGPT data export into a Word and PDF archive. Works offline."/>
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFiles64Folder">
+        <Directory Id="INSTALLDIR" Name="ChatGPT Export Converter"/>
+      </Directory>
+      <Directory Id="ProgramMenuFolder"/>
+    </Directory>
+
+    <DirectoryRef Id="INSTALLDIR">
+      <Component Id="cmpMsiMarker" Guid="7D0B5C2E-2E1B-4F0E-9C61-2B8E7F5A9D31" Win64="yes">
+        <File Id="filMsiMarker" Name="INSTALLED-BY-MSI.txt" Source="$(var.MarkerFile)" KeyPath="yes"/>
+      </Component>
+      <Component Id="cmpIcon" Guid="3C9F1A64-8B7D-4E25-A1C3-6F2D9E0B4A57" Win64="yes">
+        <File Id="filIcon" Name="ChatGPTExportConverter.ico" Source="$(var.IconFile)" KeyPath="yes"/>
+      </Component>
+      <Component Id="cmpRegistry" Guid="A4E2B7C9-5D13-4F86-8E0A-1B3C5D7E9F20" Win64="yes">
+        <RegistryValue Root="HKLM" Key="Software\ChatGPTExportConverter" Name="Version" Type="string" Value="$(var.Version)" KeyPath="yes"/>
+        <RegistryValue Root="HKLM" Key="Software\ChatGPTExportConverter" Name="InstallMethod" Type="string" Value="MSI"/>
+        <RegistryValue Root="HKLM" Key="Software\ChatGPTExportConverter" Name="InstallDir" Type="string" Value="[INSTALLDIR]"/>
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="ProgramMenuFolder">
+      <Component Id="cmpStartMenu" Guid="E1F3A5B7-C9D2-4E46-8A0B-2C4D6E8F0A13" Win64="yes">
+        <Shortcut Id="scStartMenu" Name="ChatGPT Export Converter"
+                  Description="Convert a ChatGPT data export to a Word and PDF archive"
+                  Target="[INSTALLDIR]ChatGPTExportConverter.exe" WorkingDirectory="INSTALLDIR"
+                  Icon="AppIcon.ico" IconIndex="0"/>
+        <RegistryValue Root="HKLM" Key="Software\ChatGPTExportConverter" Name="StartMenuShortcut" Type="integer" Value="1" KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+
+    <Feature Id="Main" Title="ChatGPT Export Converter" Level="1">
+      <ComponentGroupRef Id="AppFiles"/>
+      <ComponentRef Id="cmpMsiMarker"/>
+      <ComponentRef Id="cmpIcon"/>
+      <ComponentRef Id="cmpRegistry"/>
+      <ComponentRef Id="cmpStartMenu"/>
+    </Feature>
+  </Product>
+</Wix>

@@ -1,0 +1,78 @@
+ChatGPT Export Converter - Changelog
+====================================
+
+1.2.3  (@DATE@)  - Enterprise deployment release
+  The program itself is unchanged: ChatGPTExportConverter.exe is the 1.2.2 build and still reports
+  1.2.2 in its window, with --version and in Properties > Details. Only the package changed.
+
+  New
+  - MSI installer (ChatGPTExportConverter-1.2.3-x64.msi) for Intune, Configuration Manager, Group
+    Policy and other tools: per-machine, silent with /qn, upgrades older MSI versions in place,
+    blocks downgrades, shows in Settings > Apps with the program icon.
+  - Deploy folder for IT: ADMIN-GUIDE.md (Intune, ConfigMgr, GPO, AppLocker/WDAC, firewall, privacy,
+    troubleshooting), SECURITY-REVIEW.md, THIRD-PARTY-NOTICES.txt, SHA256SUMS.txt,
+    Verify-Package.ps1, Detect-ChatGPTExportConverter.ps1 (detection script) and
+    New-AppLockerRules.ps1.
+  - Deploy\Icons: the program icon (app.ico, logo.svg) and PNGs from 16 to 512 px for Intune
+    and Software Center.
+  - VERSION.txt in the package and in the program folder.
+
+  Install.cmd
+  - Fixed: the "silent install" described in 1.2.2 was not silent; it stopped at "Press any key",
+    which hangs deployment tools. New /S switch runs with no prompts.
+  - New switches /ALLUSERS, /CURRENTUSER, /DESKTOP and /LOG, and documented exit codes
+    (0, 1, 5, 1603, 1618, 1638). Every run is logged to %TEMP%\ChatGPTExportConverter-Install.log.
+  - Registers the program in Settings > Apps / Programs and Features (name, version, publisher,
+    icon, size, silent uninstall command), so it shows up in inventory and detection rules.
+  - The Start menu shortcut (and optional desktop shortcut) uses the program icon file.
+  - Fixed: started from a 32-bit deployment agent, it installed into "Program Files (x86)".
+  - Refuses /CURRENTUSER from the SYSTEM account instead of installing into the system profile.
+  - Calls Windows tools by full path, and detects admin rights even when the Server service
+    is disabled.
+  - Refuses to install over an MSI installation.
+
+  Uninstall.cmd
+  - Fixed: it ran "rd /s /q" on whatever folder it was in. Started from a portable copy kept in a
+    shared folder, that could delete unrelated files. It now removes only the files the package
+    installs, and only in folders that Install.cmd created.
+  - Fixed: it removed the all-users Start menu shortcut even when removing a per-user copy.
+  - New /S (silent) and /LOG switches, exit codes, and removal of the Apps & Features entry.
+
+  Package
+  - Fixed: the 1.2.2 zip stored paths with backslashes, which the zip standard does not allow.
+    Tools that follow the standard strictly can warn, or create loose files with "\" in their
+    names instead of folders. The zip now uses standard "/" paths.
+
+1.2.2  (2026-11-21)
+  - This changelog is now included in the download package and in the installed program folder.
+
+1.2.1  (2026-11-21)
+  - New logo and icon, shown on the program file, the Start menu shortcut, the window's title bar,
+    the taskbar, dialog boxes, and next to the program name at the top of the window.
+
+1.2.0  (2026-11-21)
+  - Self-contained package for company computers. Python and every library the program needs are
+    included; nothing has to be installed first.
+  - The program now runs from its own folder instead of unpacking itself into the temporary folder
+    each time it starts, which company security policies often block. It also starts faster.
+  - Install.cmd: installs for the current user without administrator rights, or for all users in
+    Program Files when run as administrator. Adds a Start menu shortcut.
+  - Uninstall.cmd: removes the program and its shortcut. Archives you created are not touched.
+  - READ ME FIRST.txt, with setup steps and notes for IT departments.
+  - Command-line runs (--cli) now print progress and the final report in the command window.
+
+1.1.0  (2026-11-20)
+  - "Pages per volume" setting is back (window and --pages), default 300 pages, range 100 to 5,000.
+    Every conversation is always included; the setting only decides where the archive is split
+    into volumes, always between calendar days.
+  - Volume sizes now count each volume's front matter, so volumes land close to the setting.
+  - Volumes that run long or end short (because a day is never split) are reported in one note
+    each instead of one note per volume.
+  - Version number added: shown in the window, with --version, and in the program file's
+    Properties > Details.
+
+1.0.0  (2026-11-13)
+  - First release. Converts a ChatGPT data export into a master index plus numbered volumes, each
+    as Word (.docx) and PDF: active thread with alternate branches, reasoning panels, cited
+    sources, attachments (images, PDF pages, documents, voice recordings), UTC timestamps, and an
+    end-of-run report of anything unusual.

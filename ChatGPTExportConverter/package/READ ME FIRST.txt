@@ -1,0 +1,47 @@
+ChatGPT Export Converter 1.2.3
+==============================
+
+Everything the program needs is in this package. Python does NOT need to be installed, and
+nothing is downloaded. It works fully offline.
+
+Requirements: Windows 10 or 11, 64-bit.
+What's new: see CHANGELOG.txt.     Version details: see VERSION.txt.
+IT departments: see the Deploy folder, starting with Deploy\ADMIN-GUIDE.md.
+
+
+INSTALL (recommended)
+---------------------
+1. Extract the whole zip (right-click > Extract All). Don't run it from inside the zip.
+2. Double-click Install.cmd.
+   - Normally it installs for you only, in %LOCALAPPDATA%\Programs\ChatGPT Export Converter.
+     No administrator rights are needed.
+   - Run as administrator, it installs for all users, in C:\Program Files\ChatGPT Export Converter.
+   - Add /DESKTOP for a desktop shortcut too:  Install.cmd /DESKTOP
+3. Start "ChatGPT Export Converter" from the Start menu.
+
+Or double-click ChatGPTExportConverter-1.2.3-x64.msi to install for all users (needs administrator).
+
+To remove it: Settings > Apps > ChatGPT Export Converter > Uninstall.
+Archives you've created are never touched.
+
+
+RUN WITHOUT INSTALLING
+----------------------
+Open the App folder and double-click ChatGPTExportConverter.exe. Keep the whole App folder
+together: the .exe needs the _internal folder next to it. You can copy the App folder
+anywhere, such as a USB stick or a network share. To remove a copy like this, delete the folder.
+
+
+COMMAND LINE
+------------
+  ChatGPTExportConverter.exe --cli export.zip -o D:\Archives --owner "Jane Doe" --pages 300
+  ChatGPTExportConverter.exe --version
+
+In a batch file, use "start /wait" so the script waits and gets the exit code (0 = success):
+  start "" /wait ChatGPTExportConverter.exe --cli export.zip -o D:\Archives
+
+
+PRIVACY
+-------
+A ChatGPT export contains your private conversation history, and so does the archive this
+program creates. Save it somewhere only you (or the people you choose) can open.
