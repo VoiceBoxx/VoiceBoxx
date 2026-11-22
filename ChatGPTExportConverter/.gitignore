@@ -1,2 +1,3 @@
 build/Icon/
 dist/
+__pycache__/
