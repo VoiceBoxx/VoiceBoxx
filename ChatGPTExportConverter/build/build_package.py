@@ -8,9 +8,14 @@ Takes the original release zip (which holds the PyInstaller build in App\\), lay
   <out>/ChatGPTExportConverter-<ver>-x64.msi      per-machine MSI (also inside the zip)
   <out>/*.sha256                                  checksums of the two files above
 
-Needs: Python 3.10+, wixl + wixl-heat (msitools package), cairosvg (for the PNG icons).
+The program file is patched with patch_exe.py (fixes and version info, see that file), and
+native libraries the program never loads are left out (UNUSED_FILES).
+
+Needs: Python 3.10+, wixl + wixl-heat (msitools package), cairosvg (for the PNG icons),
+Python 3.14 with pefile (for patch_exe.py), and osslsigncode only when signing.
 
   python3 build_package.py --source-zip ChatGPTExportConverter-1.2.2.zip --out dist
+  python3 build_package.py --source-zip ... --sign-pfx codesign.pfx --sign-password-env PFX_PASS
 """
 import argparse
 import datetime
@@ -35,6 +40,16 @@ PRODUCT_CODES = {
 TEXT_EXT = {".cmd", ".txt", ".md", ".ps1", ".svg"}
 CRLF_EXT = {".cmd", ".txt", ".md", ".ps1"}
 PNG_SIZES = (16, 24, 32, 48, 64, 128, 256, 512)
+# Native libraries the program never loads (security review F10). Verified: a full conversion and
+# the start-up hooks run with these blocked; hashlib falls back to the hash modules built into
+# python314.dll; Pillow skips its AVIF plugin when _avif is missing.
+UNUSED_FILES = (
+    "App/_internal/libcrypto-3.dll",
+    "App/_internal/libssl-3.dll",
+    "App/_internal/_ssl.pyd",
+    "App/_internal/_hashlib.pyd",
+    "App/_internal/PIL/_avif.cp314-win_amd64.pyd",
+)
 # Files from the original package that this kit replaces.
 REPLACED = {"Install.cmd", "READ ME FIRST.txt", "CHANGELOG.txt", "App/Uninstall.cmd", "App/CHANGELOG.txt"}
 
@@ -131,6 +146,40 @@ def build_msi(stage, version, publisher, msi_path, work, product_code):
         check=True, cwd=work)
 
 
+def patch_program(stage, version, publisher, py314):
+    exe = os.path.join(stage, "App", f"{NAME}.exe")
+    tmp = exe + ".patched"
+    subprocess.run([py314, "-I", os.path.join(HERE, "patch_exe.py"), exe, tmp,
+                    "--version", version, "--company", publisher], check=True)
+    os.replace(tmp, exe)
+    for rel in UNUSED_FILES:
+        p = os.path.join(stage, *rel.split("/"))
+        if not os.path.exists(p):
+            raise SystemExit(f"expected file not found (different source build?): {rel}")
+        os.remove(p)
+
+
+def sign(path, a):
+    """Authenticode-sign path in place with osslsigncode (no-op unless --sign-pfx is given)."""
+    if not a.sign_pfx:
+        return
+    password = os.environ.get(a.sign_password_env, "") if a.sign_password_env else ""
+    # The password goes through a private temp file, never the command line (visible in ps).
+    fd, passfile = tempfile.mkstemp(prefix="pfxpass-")
+    try:
+        os.write(fd, password.encode())
+        os.close(fd)
+        cmd = ["osslsigncode", "sign", "-pkcs12", a.sign_pfx, "-readpass", passfile, "-h", "sha256",
+               "-n", "ChatGPT Export Converter", "-in", path, "-out", path + ".signed"]
+        if a.timestamp_url:
+            cmd[2:2] = ["-ts", a.timestamp_url]
+        subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL)
+    finally:
+        os.remove(passfile)
+    os.replace(path + ".signed", path)
+    print(f"signed {os.path.basename(path)}")
+
+
 def write_checksums(stage, version):
     out = os.path.join(stage, "Deploy", "SHA256SUMS.txt")
     lines = [f"# SHA-256 of every file in ChatGPTExportConverter-{version}. Check with Deploy\\Verify-Package.ps1"]
@@ -163,6 +212,11 @@ def main():
     ap.add_argument("--out", default="dist")
     ap.add_argument("--version", default=open(os.path.join(KIT, "VERSION.txt")).read().split()[0])
     ap.add_argument("--publisher", default="VoiceBoxx")
+    ap.add_argument("--py314", default="python3.14", help="Python 3.14 with pefile, for patch_exe.py")
+    ap.add_argument("--sign-pfx", help="code-signing certificate (.pfx) to sign the .exe and .msi")
+    ap.add_argument("--sign-password-env", help="name of the environment variable holding the .pfx password")
+    ap.add_argument("--timestamp-url", default="http://timestamp.digicert.com",
+                    help="RFC 3161 timestamp server ('' to skip timestamping)")
     a = ap.parse_args()
     if a.version not in PRODUCT_CODES:
         raise SystemExit(f"add a ProductCode GUID for {a.version} to PRODUCT_CODES first")
@@ -186,6 +240,10 @@ def main():
                 "@PRODUCTCODE@": PRODUCT_CODES[a.version],
                 "@DATE@": datetime.date.today().isoformat(), "@SIZE_KB@": "0", "@SIZE_MB@": "0"}
         overlay_kit(stage, subs)
+        patch_program(stage, a.version, a.publisher, a.py314)
+        sign(os.path.join(stage, "App", f"{NAME}.exe"), a)
+        for f in ("CHANGELOG.txt", "VERSION.txt"):
+            shutil.copyfile(os.path.join(stage, f), os.path.join(stage, "App", f))
         kb = dir_size_kb(os.path.join(stage, "App"))
         subs.update({"@SIZE_KB@": str(kb), "@SIZE_MB@": str(round(kb / 1024))})
         overlay_kit(stage, subs)   # again, now that the installed size is known
@@ -198,6 +256,7 @@ def main():
         os.makedirs(mwork)
         build_msi(stage, a.version, a.publisher, os.path.join(stage, msi_name), mwork,
                   PRODUCT_CODES[a.version])
+        sign(os.path.join(stage, msi_name), a)
 
     write_checksums(stage, a.version)
     zip_path = os.path.join(a.out, f"{NAME}-{a.version}.zip")

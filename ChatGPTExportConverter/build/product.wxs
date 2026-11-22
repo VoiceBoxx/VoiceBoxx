@@ -18,6 +18,13 @@
     <!-- Upgrades replace any older version; installing an older version over a newer one is blocked. -->
     <MajorUpgrade DowngradeErrorMessage="A newer version of ChatGPT Export Converter is already installed."/>
 
+    <!-- Install.cmd and the MSI share the install folder: refuse to install over a script install. -->
+    <Property Id="SCRIPTINSTALL">
+      <RegistrySearch Id="srchScriptInstall" Root="HKLM" Key="Software\ChatGPTExportConverter"
+                      Name="InstallMethod" Type="raw" Win64="yes"/>
+    </Property>
+    <Condition Message="ChatGPT Export Converter is already installed with Install.cmd. Remove it first (Settings &gt; Apps, or Uninstall.cmd /S), then install the MSI.">Installed OR NOT (SCRIPTINSTALL = "Install.cmd")</Condition>
+
     <Icon Id="AppIcon.ico" SourceFile="$(var.IconFile)"/>
     <Property Id="ARPPRODUCTICON" Value="AppIcon.ico"/>
     <Property Id="ARPNOMODIFY" Value="1"/>

@@ -6,10 +6,10 @@ needs no Python or other runtime, makes no network connections, and needs no adm
 
 | | |
 |---|---|
-| Package version | **@VERSION@** (program file `ChatGPTExportConverter.exe` reports **1.2.2**; see `VERSION.txt`) |
+| Version | **@VERSION@** (MSI, Apps & Features, the .exe's FileVersion, the window and `--version` all agree) |
 | Publisher | @PUBLISHER@ |
 | Platform | Windows 10 or 11, **x64** |
-| Disk space | about 60 MB, plus the archives users create |
+| Disk space | about 45 MB, plus the archives users create |
 | Install size (Apps & Features) | @SIZE_MB@ MB |
 | MSI ProductCode | `@PRODUCTCODE@` (changes with every version) |
 | MSI UpgradeCode | `@UPGRADECODE@` (never changes) |
@@ -51,12 +51,13 @@ ChatGPTExportConverter-@VERSION@\
   App\                                 The program (also usable portable, as is)
     ChatGPTExportConverter.exe         Main program
     ChatGPTExportConverter.ico         Program icon (Start menu, desktop, Apps & Features)
+    LICENSES\                          Full licence texts of the bundled open-source components
     Uninstall.cmd                      Uninstaller for Install.cmd installations
     _internal\                         Embedded Python runtime and libraries. Keep with the .exe
   Deploy\
     ADMIN-GUIDE.md                     This guide
     SECURITY-REVIEW.md                 Security and quality review, open items
-    THIRD-PARTY-NOTICES.txt            Open-source components and licences
+    THIRD-PARTY-NOTICES.txt            Open-source components, versions and links
     SHA256SUMS.txt   Verify-Package.ps1               Integrity check
     Detect-ChatGPTExportConverter.ps1  Detection script for Intune / ConfigMgr
     New-AppLockerRules.ps1             AppLocker rule generator
@@ -76,8 +77,8 @@ Install.cmd), and the MSI itself. For Company Portal or Software Center, upload
 | **Install.cmd** | all users or one user | tools without MSI support, or per-user installs with no admin rights | `/S` | yes |
 | **Portable `App` folder** | wherever you copy it | USB sticks, network shares, locked-down VDI images | n/a | no |
 
-Choose **one** method per computer. Install.cmd refuses to run over an MSI installation (exit
-code 1638), and the MSI installs to the same folder, so mixing them on one computer is not supported.
+Choose **one** method per computer. They share the install folder, so each refuses to install over
+the other: Install.cmd exits with 1638, and the MSI stops with a message (exit 1603 when silent).
 
 ## 3. MSI installer
 
@@ -253,16 +254,20 @@ There are no ADMX templates: the program has no settings to manage by policy.
   signtool sign /fd SHA256 /td SHA256 /tr http://timestamp.digicert.com /n "Your Company" App\ChatGPTExportConverter.exe
   signtool sign /fd SHA256 /td SHA256 /tr http://timestamp.digicert.com /n "Your Company" ChatGPTExportConverter-@VERSION@-x64.msi
   ```
-  Signing changes the files, so rebuild the MSI and `SHA256SUMS.txt` afterwards (see
-  `build\build_package.py` in the source repository) and test the signed .exe once.
-  Then switch AppLocker and WDAC to publisher rules.
+  Simplest: let the build do both, in the right order, with
+  `build_package.py --sign-pfx codesign.pfx --sign-password-env PFX_PASS` (source repository).
+  If you sign by hand, rebuild the MSI and `SHA256SUMS.txt` afterwards. Test the signed .exe once,
+  then switch AppLocker and WDAC to publisher rules.
 * **EDR behaviour you may see:**
   * **Default `built-in` PDF engine:** no child processes.
-  * **`word` engine:** the program starts hidden `powershell.exe -NoProfile -NonInteractive
-    -Command ...`, which automates `WINWORD.EXE` through COM to save PDFs. Some EDR products flag
+  * **`word` engine:** the program starts hidden
+    `%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe -NoProfile -NonInteractive -Command ...`,
+    which automates `WINWORD.EXE` through COM (macros disabled) to save PDFs. On a time-out it
+    ends that Word instance with `taskkill`. Some EDR products flag
     this pattern, and PowerShell Constrained Language Mode blocks it (the program then reports
     a Word conversion error; use the built-in engine).
-  * **`libreoffice` engine:** the program starts `soffice.exe --headless --convert-to pdf`.
+  * **`libreoffice` engine:** the program starts `soffice.exe --headless --convert-to pdf`, from
+    Program Files or an absolute PATH folder only.
 
   The `word` and `libreoffice` engines only appear when that software is installed, and only run
   when a user selects them.
@@ -271,8 +276,7 @@ There are no ADMX templates: the program has no settings to manage by policy.
 
 The program makes **no network connections**. None of its own code imports networking modules,
 and it has no update check or telemetry. No firewall rules, proxy settings or URL allow-lists are
-needed. (The embedded Python runtime ships its standard `ssl` and `socket` libraries, but the
-program never uses them; see SECURITY-REVIEW F10.)
+needed. Since @VERSION@, OpenSSL isn't even included, so the program can't make TLS connections.
 
 To enforce this, you can block it outbound:
 
@@ -362,17 +366,16 @@ also has `.sha256` files next to the zip and the MSI. Check those with
 | Blocked by AppLocker, WDAC or ASR | Add rules (section 9). Regenerate hash rules after each upgrade. |
 | Installed but no Start menu shortcut (Install.cmd) | PowerShell Constrained Language Mode. See the log warning, and use the MSI. |
 | Program won't start, missing DLL | The `_internal` folder isn't next to the .exe. Copy the whole `App` folder. |
-| Word engine hangs, or `WINWORD.EXE` keeps running | Word is showing a hidden dialog (activation, first run). Use the built-in engine, or open Word once interactively. |
-| Text looks blurry | Display scaling above 100%; this is a known limitation (SECURITY-REVIEW F13). |
+| Word engine times out | Word is showing a hidden dialog (activation, first run). The program gives up after 2 min + 10 min per volume and closes that Word instance. Use the built-in engine, or open Word once interactively. |
 
 ## 16. Known limitations
 
-* The .exe still reports **1.2.2**. Package @VERSION@ changed only the installers and scripts.
-  For detection, use the MSI version, the Apps & Features `DisplayVersion`, or
-  `HKLM\SOFTWARE\ChatGPTExportConverter\Version`.
-* The .exe and .msi are not code-signed.
+* For detection, use the MSI version, the Apps & Features `DisplayVersion`, or
+  `HKLM\SOFTWARE\ChatGPTExportConverter\Version` (all @VERSION@).
+* The .exe and .msi are not code-signed unless you build with your certificate (section 9).
 * x64 only. ARM64 Windows runs it through x64 emulation, but this has not been tested.
 * No per-user MSI. Use `Install.cmd /CURRENTUSER` for per-user installs.
-* Install.cmd and the MSI were built and checked structurally but have not been run on Windows.
-  **Test them in a pilot ring before broad deployment.**
+* The fixed program, Install.cmd and the MSI were verified with automated tests (see
+  SECURITY-REVIEW, "How the fixes were verified") but **have not yet been run on Windows. Test
+  them in a pilot ring before broad deployment.**
 * Open items for the next program release are listed in `SECURITY-REVIEW.md`.

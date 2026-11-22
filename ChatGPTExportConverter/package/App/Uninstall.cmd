@@ -78,6 +78,7 @@ REM Remove only the files this package installs; the folder itself goes only if 
 call :say "Removing program files from %DEST% ..."
 cd /d "%TEMP%"
 rd /s /q "%DEST%\_internal" 2>nul
+rd /s /q "%DEST%\LICENSES" 2>nul
 for %%F in ("%EXE%" "ChatGPTExportConverter.ico" "CHANGELOG.txt" "VERSION.txt" "INSTALL-INFO.txt") do del /f /q "%DEST%\%%~F" >nul 2>&1
 call :say "%APP% has been removed. === exit code 0"
 if not defined SILENT pause

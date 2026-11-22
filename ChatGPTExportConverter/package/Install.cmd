@@ -121,20 +121,21 @@ if defined DESKTOP (
 
 REM Register in Settings > Apps / Programs and Features (also used by inventory and detection rules).
 set "K=%HIVE%\%ARP%"
-"%SYS%\reg.exe" add "%K%" /v DisplayName          /t REG_SZ    /d "%APP%" /f >nul
-"%SYS%\reg.exe" add "%K%" /v DisplayVersion       /t REG_SZ    /d "%VER%" /f >nul
-"%SYS%\reg.exe" add "%K%" /v Publisher            /t REG_SZ    /d "%PUBLISHER%" /f >nul
-"%SYS%\reg.exe" add "%K%" /v DisplayIcon          /t REG_SZ    /d "%DEST%\%ICO%" /f >nul
-"%SYS%\reg.exe" add "%K%" /v InstallLocation      /t REG_SZ    /d "%DEST%" /f >nul
-"%SYS%\reg.exe" add "%K%" /v UninstallString      /t REG_SZ    /d "\"%DEST%\Uninstall.cmd\"" /f >nul
-"%SYS%\reg.exe" add "%K%" /v QuietUninstallString /t REG_SZ    /d "\"%DEST%\Uninstall.cmd\" /S" /f >nul
-"%SYS%\reg.exe" add "%K%" /v EstimatedSize        /t REG_DWORD /d %SIZEKB% /f >nul
-"%SYS%\reg.exe" add "%K%" /v NoModify             /t REG_DWORD /d 1 /f >nul
-"%SYS%\reg.exe" add "%K%" /v NoRepair             /t REG_DWORD /d 1 /f >nul
-"%SYS%\reg.exe" add "%HIVE%\%APPKEY%" /v Version       /t REG_SZ /d "%VER%" /f >nul
-"%SYS%\reg.exe" add "%HIVE%\%APPKEY%" /v InstallMethod /t REG_SZ /d "Install.cmd" /f >nul
-"%SYS%\reg.exe" add "%HIVE%\%APPKEY%" /v InstallDir    /t REG_SZ /d "%DEST%" /f >nul
-if errorlevel 1 call :say "WARNING: Could not write the Apps and Features entry."
+set "REGFAIL="
+"%SYS%\reg.exe" add "%K%" /v DisplayName          /t REG_SZ    /d "%APP%" /f >nul || set "REGFAIL=1"
+"%SYS%\reg.exe" add "%K%" /v DisplayVersion       /t REG_SZ    /d "%VER%" /f >nul || set "REGFAIL=1"
+"%SYS%\reg.exe" add "%K%" /v Publisher            /t REG_SZ    /d "%PUBLISHER%" /f >nul || set "REGFAIL=1"
+"%SYS%\reg.exe" add "%K%" /v DisplayIcon          /t REG_SZ    /d "%DEST%\%ICO%" /f >nul || set "REGFAIL=1"
+"%SYS%\reg.exe" add "%K%" /v InstallLocation      /t REG_SZ    /d "%DEST%" /f >nul || set "REGFAIL=1"
+"%SYS%\reg.exe" add "%K%" /v UninstallString      /t REG_SZ    /d "\"%DEST%\Uninstall.cmd\"" /f >nul || set "REGFAIL=1"
+"%SYS%\reg.exe" add "%K%" /v QuietUninstallString /t REG_SZ    /d "\"%DEST%\Uninstall.cmd\" /S" /f >nul || set "REGFAIL=1"
+"%SYS%\reg.exe" add "%K%" /v EstimatedSize        /t REG_DWORD /d %SIZEKB% /f >nul || set "REGFAIL=1"
+"%SYS%\reg.exe" add "%K%" /v NoModify             /t REG_DWORD /d 1 /f >nul || set "REGFAIL=1"
+"%SYS%\reg.exe" add "%K%" /v NoRepair             /t REG_DWORD /d 1 /f >nul || set "REGFAIL=1"
+"%SYS%\reg.exe" add "%HIVE%\%APPKEY%" /v Version       /t REG_SZ /d "%VER%" /f >nul || set "REGFAIL=1"
+"%SYS%\reg.exe" add "%HIVE%\%APPKEY%" /v InstallMethod /t REG_SZ /d "Install.cmd" /f >nul || set "REGFAIL=1"
+"%SYS%\reg.exe" add "%HIVE%\%APPKEY%" /v InstallDir    /t REG_SZ /d "%DEST%" /f >nul || set "REGFAIL=1"
+if defined REGFAIL call :say "WARNING: Could not write all Apps and Features / registry values."
 
 call :say "Installed %APP% %VER% to %DEST%"
 call :say "Remove it with Settings > Apps, or run Uninstall.cmd /S in %DEST%"

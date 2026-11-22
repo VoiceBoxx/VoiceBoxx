@@ -11,16 +11,25 @@ The program binaries are **not** stored here. The build takes them from the orig
 | `package/` | Files laid over the release. `@VERSION@`-style placeholders are filled in at build time |
 | `package/Deploy/ADMIN-GUIDE.md` | Deployment guide (MSI, Install.cmd, Intune, ConfigMgr, GPO, AppLocker/WDAC, privacy) |
 | `package/Deploy/SECURITY-REVIEW.md` | Review findings and open items for the next program release |
+| `patches/` | Fixes applied to the frozen program (`pdf_convert.py`, `safe_name()`, high-DPI start-up hook) |
+| `build/patch_exe.py` | Applies `patches/` to `ChatGPTExportConverter.exe` and rewrites its version info; `--selftest` proves the archive writer is byte-exact |
 | `build/product.wxs` | MSI definition (wixl / WiX 3 syntax) |
 | `build/build_package.py` | Build script |
 
 ## Build
 
-Needs Linux or WSL with `msitools` and `wixl` (`apt install msitools wixl`), Python 3.10+, and
-`pip install cairosvg`.
+Needs Linux or WSL with `msitools` and `wixl` (`apt install msitools wixl`), Python 3.10+ with
+`cairosvg`, and Python **3.14** with `pefile` (the frozen program is Python 3.14 bytecode).
+`osslsigncode` is only needed for signing.
 
 ```bash
-python3 build/build_package.py --source-zip ChatGPTExportConverter-1.2.2.zip --out dist
+python3 build/build_package.py --source-zip ChatGPTExportConverter-1.2.2.zip --out dist --py314 python3.14
+```
+
+Signed build (the password is read from an environment variable, never the command line):
+
+```bash
+PFX_PASS='...' python3 build/build_package.py --source-zip ChatGPTExportConverter-1.2.2.zip --out dist --sign-pfx codesign.pfx --sign-password-env PFX_PASS
 ```
 
 Output: `dist/ChatGPTExportConverter-<ver>.zip`, `dist/ChatGPTExportConverter-<ver>-x64.msi`

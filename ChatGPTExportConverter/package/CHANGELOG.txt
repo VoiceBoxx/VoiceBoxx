@@ -1,9 +1,28 @@
 ChatGPT Export Converter - Changelog
 ====================================
 
-1.2.3  (@DATE@)  - Enterprise deployment release
-  The program itself is unchanged: ChatGPTExportConverter.exe is the 1.2.2 build and still reports
-  1.2.2 in its window, with --version and in Properties > Details. Only the package changed.
+1.2.3  (@DATE@)  - Fixes and enterprise deployment release
+
+  Program
+  - Version 1.2.3 everywhere: the window, --version, and the program file's Properties > Details,
+    which now also show the publisher (CompanyName) and copyright.
+  - Security: the optional Word PDF engine starts PowerShell by its full path, and LibreOffice is
+    looked up only in Program Files and absolute PATH folders, never in the current folder. A
+    program with the same name planted in that folder can no longer be run by mistake.
+  - Word engine: macros are disabled for the hidden Word session. The time limit now scales with
+    the number of documents (12 minutes for one) instead of a flat hour. On a time-out or error,
+    the hidden Word process this run started is closed instead of being left running.
+  - LibreOffice engine: on a time-out, the whole LibreOffice process tree is ended.
+  - Attachments named like Windows device names (CON, NUL, AUX, COM1, LPT1, ...) are saved with a
+    "_" prefix instead of failing. Trailing dots and spaces left after shortening a long name are
+    removed.
+  - Sharp text on high-DPI displays (125% scaling and above). The window is sized to match the
+    display scale instead of being stretched and blurry.
+  - About 15 MB smaller: removed OpenSSL (libcrypto, libssl, _ssl, _hashlib) and Pillow's AVIF
+    module, which the program never used. Without OpenSSL, the program cannot make encrypted
+    network connections at all.
+  - Full licence texts for every bundled open-source component, in the program folder's
+    LICENSES folder.
 
   New
   - MSI installer (ChatGPTExportConverter-1.2.3-x64.msi) for Intune, Configuration Manager, Group
@@ -16,6 +35,9 @@ ChatGPT Export Converter - Changelog
   - Deploy\Icons: the program icon (app.ico, logo.svg) and PNGs from 16 to 512 px for Intune
     and Software Center.
   - VERSION.txt in the package and in the program folder.
+  - MSI refuses to install over a copy installed with Install.cmd (and Install.cmd refuses to
+    install over the MSI), so the two can't end up mixed in one folder.
+  - The build can Authenticode-sign the program and the MSI with a company certificate.
 
   Install.cmd
   - Fixed: the "silent install" described in 1.2.2 was not silent; it stopped at "Press any key",
@@ -28,7 +50,7 @@ ChatGPT Export Converter - Changelog
   - Fixed: started from a 32-bit deployment agent, it installed into "Program Files (x86)".
   - Refuses /CURRENTUSER from the SYSTEM account instead of installing into the system profile.
   - Calls Windows tools by full path, and detects admin rights even when the Server service
-    is disabled.
+    is disabled. Reports a warning if any Apps & Features value could not be written.
   - Refuses to install over an MSI installation.
 
   Uninstall.cmd

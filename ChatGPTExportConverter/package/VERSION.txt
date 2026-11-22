@@ -1,7 +1,7 @@
 1.2.3
 Product:        ChatGPT Export Converter
 Package:        1.2.3 (released @DATE@)
-Program file:   ChatGPTExportConverter.exe, FileVersion 1.2.2 (unchanged; see CHANGELOG.txt)
+Program file:   ChatGPTExportConverter.exe, FileVersion 1.2.3 (shown in the window and with --version)
 MSI:            ChatGPTExportConverter-1.2.3-x64.msi, ProductVersion 1.2.3
 MSI ProductCode: @PRODUCTCODE@
 MSI UpgradeCode: @UPGRADECODE@

@@ -2,15 +2,17 @@ ChatGPT Export Converter @VERSION@ - Third-party components
 ==========================================================
 
 The program folder (App\_internal) contains the following open-source components. Versions were
-read from the files in this build. Licence identifiers are SPDX; the full licence texts are
-available at the project URLs. pypdfium2's own licence files are included in
-App\_internal\pypdfium2-5.15.2.dist-info\licenses.
+read from the files in this build. Licence identifiers are SPDX. The full licence texts are in
+the program folder, App\LICENSES (taken from the official python.org and PyPI distributions).
+pypdfium2's licence files are in App\_internal\pypdfium2-5.15.2.dist-info\licenses.
+All bundled .dll/.pyd files are byte-identical to the official builds (see SECURITY-REVIEW.md).
 
 Component             Version   Licence                                 Project
 --------------------  --------  --------------------------------------  ----------------------------------------
 CPython runtime       3.14.10   PSF-2.0                                 https://www.python.org/
-  incl. expat, mpdecimal, libffi, zlib, bzip2, liblzma (xz), zstd, libtommath (bundled with CPython)
-OpenSSL               3.5.9     Apache-2.0                              https://www.openssl.org/
+  incl. expat, mpdecimal, libffi, zlib, bzip2, liblzma (xz), zstd, libtommath, HACL* (bundled
+  with CPython; covered by App\LICENSES\Python-3.14.10 (and bundled C libraries).txt)
+  OpenSSL was removed in 1.2.3; the program does not use it.
 Tcl / Tk              9.0.4     TCL (BSD-style)                         https://www.tcl-lang.org/
 Microsoft Visual C++  14.x      Microsoft VC++ Redistributable terms    https://visualstudio.microsoft.com/
   runtime (VCRUNTIME140.dll, VCRUNTIME140_1.dll)
@@ -21,17 +23,12 @@ python-docx           1.2.0     MIT                                     https://
 lxml                  6.1.3     BSD-3-Clause                            https://lxml.de/
   incl. libxml2, libxslt (MIT)
 Pillow                13.0.0    MIT-CMU                                 https://python-pillow.github.io/
-  incl. libjpeg-turbo, libpng, libtiff, libwebp, libavif, FreeType, Little CMS, OpenJPEG,
-  HarfBuzz, Brotli, zlib-ng (each under its own permissive licence; see Pillow's wheel notices)
+  incl. libjpeg-turbo, libpng, libtiff, libwebp, FreeType, Little CMS, OpenJPEG, HarfBuzz,
+  Brotli, zlib-ng (each under its own permissive licence; all texts in App\LICENSES\Pillow ...)
 pypdfium2             5.15.2    Apache-2.0 OR BSD-3-Clause (+ CC-BY-4.0 for docs)  https://github.com/pypdfium2-team/pypdfium2
 PDFium                159.0.8149  BSD-3-Clause / Apache-2.0             https://pdfium.googlesource.com/pdfium/
 charset-normalizer    3.5.2     MIT                                     https://github.com/jawah/charset_normalizer
 typing_extensions     -         PSF-2.0                                 https://github.com/python/typing_extensions
-
-Note for the maintainer: BSD and MIT licences require their copyright notice and licence text to
-be distributed with the program. Collect the full texts into this file (or a licenses\ folder)
-at build time, for example with PyInstaller's --copy-metadata for each package, or the
-pip-licenses tool with --with-license-file.
 
 Fonts: the program does not ship fonts. It uses Calibri, Consolas and Segoe UI from
 C:\Windows\Fonts when present, under the computer's existing Windows licence.
