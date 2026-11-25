@@ -1,4 +1,6 @@
-# ChatGPT Export Converter 1.2.4 start-up fixes, run by the PyInstaller bootloader before app.py.
+# ChatGPT Export Converter start-up fixes, run by the PyInstaller bootloader before app.py.
+# 1.2.4: high-DPI. 1.2.7: program fixes in cgx_fixes (spacing, table alignment, output folders,
+# page estimates) and several exports dropped at once.
 #
 # High-DPI: the 1.2.2 build is not DPI-aware, so Windows bitmap-stretches the window on scaled
 # displays (blurry text). Declare system DPI awareness, then scale the window sizes the program
@@ -60,3 +62,15 @@ if sys.platform == 'win32':
     except Exception:
         pass        # never stop the program from starting
     del _cgx_dpi_fix
+
+
+# 1.2.7: program fixes (see cgx_fixes.py), and several exports dropped on the program at once.
+try:
+    import cgx_fixes
+    cgx_fixes.apply()
+    _cgx_paths = cgx_fixes.dropped_exports(sys.argv[1:])
+except Exception:
+    _cgx_paths = None
+if _cgx_paths:
+    cgx_fixes.batch(_cgx_paths)
+    sys.exit(0)

@@ -328,6 +328,11 @@ ChatGPTExportConverter.exe --version
 ```
 
 * `EXPORT` can be the export `.zip`, its extracted folder, or a `conversations*.json` file.
+* Each run writes a new folder `ChatGPT_Archive_<owner>_<date>` under `-o` (default: next to the
+  export). If that folder already exists, the run uses `... (2)`, `... (3)` and so on, so runs
+  never overwrite or mix with each other, even in parallel.
+* Started with two or more existing files or folders and no options (for example several exports
+  dropped on the program), it converts them one after another in a progress window.
 * `--pages` sets the pages per volume, from 100 to 5000 (default 300).
 * Exit code: **0** = success, **1** = error (the message goes to stderr).
 * It's a Windows GUI program, so `cmd` doesn't wait for it. In scripts, use:
@@ -352,9 +357,10 @@ ChatGPTExportConverter.exe --version
 
 To move from Install.cmd to the MSI: run `Uninstall.cmd /S` first, then install the MSI.
 
-**Upgrading from 1.2.3, 1.2.4 or 1.2.5.** 1.2.3 changed only the installers and still contained the
+**Upgrading from earlier versions.** 1.2.3 changed only the installers and still contained the
 1.2.2 program. 1.2.4 is the fixed program, but its MSI had no setup window. 1.2.5 adds the setup
-wizard and keeps the 1.2.4 program. 1.2.6 adds the desktop-shortcut and start-now options. The
+wizard and keeps the 1.2.4 program. 1.2.6 adds the desktop-shortcut and start-now options. 1.2.7 fixes layout, multiple-file
+and page-count issues found in a design review. The
 @VERSION@ MSI upgrades any of them in place, and
 running the @VERSION@ `Install.cmd /S` updates a script install. In Intune or ConfigMgr, set up
 @VERSION@ to supersede the earlier version (without uninstalling first). The full version history, with each
@@ -393,6 +399,8 @@ also has `.sha256` files next to the zip and the MSI. Check those with
 
 ## 16. Known limitations
 
+* PDFs: right-to-left scripts (Arabic, Hebrew) are shown in the wrong order and Arabic letters
+  unjoined; the Word files are correct. Emoji need Segoe UI Emoji (standard on Windows 10/11).
 * For detection, use the MSI version, the Apps & Features `DisplayVersion`, or
   `HKLM\SOFTWARE\ChatGPTExportConverter\Version` (all @VERSION@).
 * The .exe and .msi are not code-signed unless you build with your certificate (section 9).

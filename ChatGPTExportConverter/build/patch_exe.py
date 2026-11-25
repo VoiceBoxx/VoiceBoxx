@@ -5,6 +5,8 @@ Run with Python 3.14 (same bytecode magic as the frozen program). Changes:
 
   PYZ archive
     pdf_convert   replaced by ../patches/pdf_convert.py                       (F5, F6)
+    cgx_fixes     new module ../patches/cgx_fixes.py, applied by the start-up hook (1.2.7)
+    layout, converter  constants: master-index column widths, wording (1.2.7)
     attachments   safe_name() replaced by ../patches/attachments_safe_name.py (F12)
     version       __version__ set to --version
   Bootloader archive
@@ -12,7 +14,7 @@ Run with Python 3.14 (same bytecode magic as the frozen program). Changes:
   PE resources
     version info  FileVersion/ProductVersion = --version, adds CompanyName and LegalCopyright (F14)
 
-  python3.14 patch_exe.py IN.exe OUT.exe --version 1.2.6 --company "VoiceBoxx"
+  python3.14 patch_exe.py IN.exe OUT.exe --version 1.2.7 --company "VoiceBoxx"
   python3.14 patch_exe.py IN.exe --selftest     # proves the archive writer is byte-exact
 
 Needs: pefile.
@@ -248,6 +250,31 @@ def patch(data, version, company, copyright_):
     att, hits = replace_const(att, lambda c: c is old_fn, new_fn)
     assert hits == 1
     pyz_put(raw, "attachments", att)
+
+    # 1.2.7: new module with the program fixes, loaded by the start-up hook.
+    if "cgx_fixes" in raw:
+        raise SystemExit("this exe is already patched")
+    raw["cgx_fixes"] = (0, zlib.compress(marshal.dumps(
+        compile_file(os.path.join(PATCHES, "cgx_fixes.py"), "cgx_fixes.py")), 9))
+    order.append("cgx_fixes")
+
+    # 1.2.7: constants. Each replacement must match exactly once, so a different source build
+    # is caught instead of being half-patched.
+    def fix_const(mod, old, new):
+        code, hits = replace_const(pyz_code(raw, mod), lambda c, o=old: type(c) is type(o) and c == o, new)
+        if hits != 1:
+            raise SystemExit(f"{mod}: expected one {old!r}, found {hits}")
+        pyz_put(raw, mod, code)
+
+    # master index columns added up to 0.96, so the table stopped short of the right margin
+    fix_const("layout", (0.07, 0.15, 0.44, 0.08, 0.1, 0.12), (0.07, 0.15, 0.48, 0.08, 0.1, 0.12))
+    # one export split into conversations-000.json, -001.json ... was described as several exports
+    fix_const("layout", " ChatGPT export files", " conversation files from a ChatGPT export")
+    fix_const("layout", " separate exports", " separate files")
+    # the over-length note blamed day boundaries even when the estimate was the cause
+    fix_const("converter", "-page target because a single day's conversations are never split across volumes.",
+              "-page target: page counts are estimated before the volumes are written, and a single "
+              "day's conversations are never split across volumes.")
 
     ver_code = pyz_code(raw, "version")
     old_v = next(c for c in ver_code.co_consts if isinstance(c, str) and c.count(".") == 2 and c.replace(".", "").isdigit())

@@ -10,7 +10,7 @@ The program is low risk. It works offline, needs no admin rights, writes only th
 for, and handles untrusted file names safely. Every one of its 44 native binaries is
 byte-identical to the official python.org or PyPI build.
 
-The review found 15 issues. **13 are fixed in @VERSION@.** The remaining two are:
+The security review found 15 issues; 13 are fixed. A later design review found 8 more (D1-D8); 7 are fixed in @VERSION@ (D8 is open). Still open from the security review:
 
 * **F3, code signing:** needs your organisation's certificate. The build can now sign with one
   command.
@@ -79,6 +79,29 @@ Checks on the result:
 | F13 | Info | Not DPI-aware: blurry on scaled displays. | **Fixed.** A start-up hook declares system DPI awareness and scales the window size to match. |
 | F14 | Info | No `CompanyName`/`LegalCopyright` in the version resource; the .exe said 1.2.2. | **Fixed.** FileVersion/ProductVersion @VERSION@ with publisher and copyright. The PE checksum is updated. |
 | F15 | Info | Each `conversations*.json` and attachment is read into memory whole. | **Accepted.** The input is the user's own export, and a size cap would reject large legitimate exports. Use a computer with plenty of RAM for exports of several GB. |
+
+## Design review and stress tests (1.2.7)
+
+**Inputs tested:**
+* 150 conversations in three `conversations-NNN.json` files, with 113 attachments (tall and wide
+  images, multi-page PDFs, Word files, CSV, audio, duplicate and unlinked names)
+* markdown tables, lists, code with tabs, long URLs, emoji, CJK and right-to-left text
+* two or three exports converted into the same folder, both one after another and at the same time
+* several exports dropped on the program at once
+
+PDF pages were rendered and inspected, using fonts metric-compatible with Calibri so line widths
+match Windows. Word files were checked in their XML.
+
+| ID | Severity | Finding | Status in @VERSION@ |
+|----|----------|---------|-----------------|
+| D1 | **High** | Converting a second export on the same day into the same place reused the `ChatGPT_Archive_<owner>_<date>` folder. The second master index replaced the first, leaving the first export's volumes unlisted. Attachments of both exports were mixed, with same-named files overwriting each other. Runs at the same time raced on the same files. Every run reported success. | **Fixed.** Each run claims its own folder atomically: `... (2)`, `... (3)`. Tested with three simultaneous runs. |
+| D2 | **Medium** | Dropping two or more exports on the program did nothing. The arguments went to the command-line parser, which accepts one export. The error went to a console that doesn't exist when started from Explorer. | **Fixed.** The exports are converted one after another in a progress window, each into its own folder. |
+| D3 | **Medium** | PDFs squeezed out runs of spaces, tabs and leading indentation (ReportLab collapses whitespace). Hand-aligned columns, indented lists and ASCII art lost their layout. The Word files kept the spaces. | **Fixed.** Meaningful spaces are kept as non-breaking spaces. Runs of 2+ lines with column gaps are set in a fixed-width font in Word and PDF, so they line up. |
+| D4 | **Medium** | Markdown table alignment (`:---:`, `---:`) was ignored: every column was left-aligned in Word and PDF. | **Fixed.** Alignment rows are read with the same rule the parser uses to detect tables, so they pair up correctly (tables in code blocks are skipped). |
+| D5 | Low | Page estimates counted an embedded image or PDF page as ~0.1 page. Volumes ran 43-61% over the target, and the master index and the volumes gave different page counts. | **Improved.** Attachments are weighted by what they render as: 5-13% over target in the same test. |
+| D6 | Low | The master index's chronological table columns added up to 96% of the text width, so its right edge didn't line up with the page. | **Fixed.** |
+| D7 | Low | One export split into several JSON files was described as "three ChatGPT export files" / "three separate exports". The over-length note blamed day boundaries even when the estimate was the cause. | **Fixed** (wording). |
+| D8 | Info | PDFs show right-to-left scripts (Arabic, Hebrew) reversed, and Arabic unjoined. ReportLab has no bidirectional shaping. The Word files are correct. | **Open.** It needs a shaping library that isn't bundled. Use the Word files for RTL content. |
 
 ## What was already done well
 

@@ -1,4 +1,4 @@
-1.2.6
+1.2.7
 Product:         ChatGPT Export Converter
 Package:         @VERSION@ (released @DATE@)
 Program file:    ChatGPTExportConverter.exe, FileVersion @VERSION@ (shown in the window and with --version)
@@ -10,7 +10,10 @@ Version history (details in CHANGELOG.txt)
 ------------------------------------------
 Version  Released    Program (.exe)  Summary                                        MSI ProductCode
 -------  ----------  --------------  ---------------------------------------------  --------------------------------------
-1.2.6    @DATE@  1.2.6           Installer options: desktop shortcut and        {F76E4101-A33D-431C-816D-34BDD3962DA8}
+1.2.7    @DATE@  1.2.7           Design fixes: spacing and table alignment,     {7DC33B11-BCAC-4AE7-AC47-3FE198EEF068}
+                                     separate folder per run, several exports at
+                                     once, page estimates, index table width
+1.2.6    2026-11-22  1.2.6           Installer options: desktop shortcut and        {F76E4101-A33D-431C-816D-34BDD3962DA8}
                                      "start now", both pre-checked
 1.2.5    2026-11-22  1.2.5           MSI setup wizard (1.2.4 MSI showed no window   {1C87D975-25C3-4260-8426-9C3DDE98613F}
                                      and seemed to do nothing); program unchanged

@@ -54,8 +54,11 @@ set "RC=1" & goto usage
 
 call :say "=== %APP% %VER% install started %DATE% %TIME% (user: %USERDOMAIN%\%USERNAME%)"
 
+REM Normally Install.cmd sits next to the App folder. Also accept it inside App, next to the program.
+if not exist "%SRC%\%EXE%" if exist "%~dp0%EXE%" set "SRC=%~dp0."
+
 if not exist "%SRC%\%EXE%" (
-  call :say "ERROR: Program files not found next to Install.cmd. Extract the whole zip first, then run Install.cmd from the extracted folder."
+  call :say "ERROR: Program files not found. Extract the whole zip first, then run Install.cmd from the extracted folder (next to the App folder)."
   set "RC=1" & goto end
 )
 if not exist "%SRC%\_internal\python314.dll" (
@@ -100,7 +103,7 @@ if exist "%DEST%\INSTALLED-BY-MSI.txt" (
 )
 
 call :say "Copying files ..."
-"%SYS%\robocopy.exe" "%SRC%" "%DEST%" /MIR /R:2 /W:2 /NFL /NDL /NJH /NJS /NP >nul
+"%SYS%\robocopy.exe" "%SRC%" "%DEST%" /MIR /R:2 /W:2 /NFL /NDL /NJH /NJS /NP /XF Install.cmd *.md "READ ME FIRST.txt" SHA256SUMS.txt THIRD-PARTY-NOTICES.txt >nul
 if errorlevel 8 (
   call :say "ERROR: The files could not be copied to %DEST% (robocopy exit code %errorlevel%)."
   set "RC=1603" & goto end

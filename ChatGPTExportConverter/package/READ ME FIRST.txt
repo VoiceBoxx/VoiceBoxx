@@ -25,6 +25,13 @@ To remove it: Settings > Apps > ChatGPT Export Converter > Uninstall.
 Archives you've created are never touched.
 
 
+SEVERAL EXPORTS AT ONCE
+-----------------------
+Drag two or more exports onto the program (or its desktop shortcut). They are converted one
+after another, each into its own ChatGPT_Archive_... folder next to it. Converting again never
+overwrites an earlier archive: the new one is saved as "... (2)", "... (3)" and so on.
+
+
 RUN WITHOUT INSTALLING
 ----------------------
 Open the App folder and double-click ChatGPTExportConverter.exe. Keep the whole App folder

@@ -1,7 +1,46 @@
 ChatGPT Export Converter - Changelog
 ====================================
 
-1.2.6  (@DATE@)  - Installer options
+1.2.7  (@DATE@)  - Design fixes
+  Found by a design review and stress tests: 150 conversations in 3 conversations-NNN.json files,
+  113 attachments, two to three exports converted into the same folder, and exports dropped on
+  the program together.
+
+  Layout
+  - Fixed: spaces, tabs and indentation were squeezed out in the PDF files (the Word files kept
+    them). Columns lined up with spaces, indented lists and ASCII art lost their layout. They now
+    look as typed.
+  - Columns lined up by hand with spaces (two or more lines with wide gaps) are shown in a
+    fixed-width font, in both Word and PDF, so they actually line up.
+  - Fixed: markdown table columns marked as centred (:---:) or right-aligned (---:) were always
+    left-aligned, so numbers didn't line up. The marks are now honoured in Word and PDF.
+  - Fixed: the table in the master index's chronological list stopped short of the right margin
+    (its columns added up to 96% of the page width). It now lines up with the rest of the page.
+  - Fixed: an export split into several files (conversations-000.json, -001.json, ...) was
+    described as "three ChatGPT export files" and "three separate exports". It now says
+    "three conversation files from a ChatGPT export".
+
+  Several files at once
+  - Fixed: converting a second export on the same day into the same place wrote into the same
+    ChatGPT_Archive_<name>_<date> folder. The second master index replaced the first and the
+    attachments of both were mixed, with files of the same name overwriting each other. Each
+    conversion now gets its own folder: "... (2)", "... (3)", even when run at the same time.
+  - Fixed: dropping two or more exports on the program (or its shortcut) did nothing at all. They
+    are now converted one after another, each into its own folder next to it, in a progress
+    window with a summary and an "Open output folders" button.
+
+  Page counts
+  - Fixed: volumes came out up to 60% longer than the "pages per volume" setting, because an
+    embedded image or PDF page counted as a tenth of a page. Attachments are now counted by what
+    they show (in the test: 105-113 pages for a 100-page target, before 143-161).
+  - The note about long volumes no longer blames day boundaries alone; it says page counts are
+    estimated before the volumes are written.
+
+  Package
+  - Install.cmd also works when it has been moved into the App folder, next to the program
+    (and then doesn't copy the documentation into Program Files).
+
+1.2.6  (2026-11-22)  - Installer options
   - MSI setup wizard: new "Create a desktop shortcut" option on the first page, checked by
     default. The shortcut uses the program icon and goes on the Public desktop (all users).
   - MSI setup wizard: "Start ChatGPT Export Converter now" on the last page is checked by default.
