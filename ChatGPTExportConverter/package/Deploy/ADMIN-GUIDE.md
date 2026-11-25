@@ -29,6 +29,7 @@ needs no Python or other runtime, makes no network connections, and needs no adm
 6. [Configuration Manager (SCCM / MECM)](#6-configuration-manager-sccm--mecm)
 7. [Group Policy](#7-group-policy)
 8. [Other tools, RDS / AVD, and portable use](#8-other-tools-rds--avd-and-portable-use)
+   * [Running from a network share](#running-from-a-network-share)
 9. [Application control, SmartScreen and EDR](#9-application-control-smartscreen-and-edr)
 10. [Network and firewall](#10-network-and-firewall)
 11. [Data handling and privacy](#11-data-handling-and-privacy)
@@ -238,7 +239,49 @@ There are no ADMX templates: the program has no settings to manage by policy.
   handling. Users on the same host can run it at the same time.
 * **Portable:** copy the whole `App` folder anywhere and run `ChatGPTExportConverter.exe`. It
   writes nothing outside the output folder the user chooses. To remove it, delete the folder.
-  On a network share, give users read and execute rights only, so nobody can replace the binaries.
+  On a network share, see [Running from a network share](#running-from-a-network-share).
+
+### Running from a network share
+
+Many users can run the same copy from a share at the same time:
+
+* The program runs in place and never writes to its own folder: no settings, logs, caches or
+  unpacked files.
+* Each user only reads the program files, which Windows allows for any number of users at once.
+* The optional Word PDF engine uses one small temporary file in each user's own `%TEMP%`.
+* Each conversion creates its own output folder (`... (2)`, `... (3)`), so users converting into
+  the same place never overwrite or mix each other's archives.
+
+Set it up like this:
+
+1. **Use a folder per version**, for example
+   `\\server\apps\ChatGPTExportConverter\@VERSION@\`. Copy the whole `App` folder into it, so the
+   `.exe` and `_internal` stay together.
+2. **Permissions:** give users *Read & execute* only, on both the share and NTFS. Give *Modify*
+   to administrators only. If users could write there, one person could replace a file and it
+   would run for everyone.
+3. **Shortcut:** point users at the full UNC path, not a mapped drive letter, which may differ
+   between users. For example, a Group Policy Preferences shortcut to
+   `\\server\apps\ChatGPTExportConverter\@VERSION@\ChatGPTExportConverter.exe` with the icon from
+   `ChatGPTExportConverter.ico` in the same folder.
+4. **Intranet zone:** add the file server to the *Local intranet* zone (Group Policy: *Site to
+   Zone Assignment List*, value `1`). Otherwise Windows shows "Open File - Security Warning" each
+   time, because the `.exe` is not signed. Signing it (section 9) also removes the prompt.
+5. **Application control:** allow the UNC path in AppLocker or WDAC, or use hash rules from
+   `Deploy\New-AppLockerRules.ps1` run against the share folder.
+
+Things to know:
+
+| Topic | What happens | What to do |
+|---|---|---|
+| Updating | While anyone has the program open, Windows locks its files, so they can't be replaced. | Copy the new version to a new folder (`...\1.2.8\`) and repoint the shortcut. Delete the old folder once nobody uses it. |
+| Network interruption | The program loads parts of itself from the share as it runs. If the share disconnects during a conversion, that run stops with an error. | The user runs it again. Nothing else is affected, and no earlier archive is touched. |
+| Start-up time | About 43 MB is read from the share the first time it starts. | Expect a few extra seconds on slow links; later starts use Windows' file cache. A local install (MSI) avoids this. |
+| Where archives are saved | By default, next to the export. If a user opens an export stored on a shared drive, their private chat archive is saved there too, visible to anyone with access. | Tell users to keep exports on their own PC, or to choose a personal folder under **Save to folder** (`-o` on the command line). |
+| Offline use | The program can't start without the share. | Use the MSI for laptops that work offline. |
+
+For many users on one Remote Desktop / AVD host, a local per-machine install (MSI) on the host is
+faster and more reliable than a share.
 
 ## 9. Application control, SmartScreen and EDR
 
@@ -394,6 +437,8 @@ also has `.sha256` files next to the zip and the MSI. Check those with
 | "Windows protected your PC" | Unsigned file with Mark of the Web. Use `Unblock-File` (section 9), deploy with the MSI, or sign it. |
 | Blocked by AppLocker, WDAC or ASR | Add rules (section 9). Regenerate hash rules after each upgrade. |
 | Installed but no Start menu shortcut (Install.cmd) | PowerShell Constrained Language Mode. See the log warning, and use the MSI. |
+| "Open File - Security Warning" every time it starts from a share | The file server isn't in the Local intranet zone and the .exe is unsigned. Add the server to the zone, or sign the .exe (see [Running from a network share](#running-from-a-network-share)). |
+| Can't update the copy on a share (files in use) | Someone has the program open. Use a new folder per version and repoint the shortcut ([Running from a network share](#running-from-a-network-share)). |
 | Program won't start, missing DLL | The `_internal` folder isn't next to the .exe. Copy the whole `App` folder. |
 | Word engine times out | Word is showing a hidden dialog (activation, first run). The program gives up after 2 min + 10 min per volume and closes that Word instance. Use the built-in engine, or open Word once interactively. |
 
