@@ -7,6 +7,7 @@ Run with Python 3.14 (same bytecode magic as the frozen program). Changes:
     pdf_convert   replaced by ../patches/pdf_convert.py                       (F5, F6)
     cgx_fixes     new module ../patches/cgx_fixes.py, applied by the start-up hook (1.2.7)
     layout, converter  constants: master-index column widths, wording (1.2.7)
+    layout, app   "Account holder" label -> "Client Name - CMP#" (1.2.8)
     attachments   safe_name() replaced by ../patches/attachments_safe_name.py (F12)
     version       __version__ set to --version
   Bootloader archive
@@ -14,7 +15,7 @@ Run with Python 3.14 (same bytecode magic as the frozen program). Changes:
   PE resources
     version info  FileVersion/ProductVersion = --version, adds CompanyName and LegalCopyright (F14)
 
-  python3.14 patch_exe.py IN.exe OUT.exe --version 1.2.7 --company "VoiceBoxx"
+  python3.14 patch_exe.py IN.exe OUT.exe --version 1.2.8 --company "VoiceBoxx"
   python3.14 patch_exe.py IN.exe --selftest     # proves the archive writer is byte-exact
 
 Needs: pefile.
@@ -36,6 +37,7 @@ COOKIE = "!8sIIII64s"
 COOKIE_LEN = struct.calcsize(COOKIE)
 ENTRY = "!IIIIBc"
 ENTRY_LEN = struct.calcsize(ENTRY)
+CLIENT_LABEL = "Client Name - CMP#"       # 1.2.8: replaces "Account holder"
 
 
 # ---------------------------------------------------------------- PyInstaller CArchive ----
@@ -260,10 +262,10 @@ def patch(data, version, company, copyright_):
 
     # 1.2.7: constants. Each replacement must match exactly once, so a different source build
     # is caught instead of being half-patched.
-    def fix_const(mod, old, new):
+    def fix_const(mod, old, new, count=1):
         code, hits = replace_const(pyz_code(raw, mod), lambda c, o=old: type(c) is type(o) and c == o, new)
-        if hits != 1:
-            raise SystemExit(f"{mod}: expected one {old!r}, found {hits}")
+        if hits != count:
+            raise SystemExit(f"{mod}: expected {count} x {old!r}, found {hits}")
         pyz_put(raw, mod, code)
 
     # master index columns added up to 0.96, so the table stopped short of the right margin
@@ -276,6 +278,10 @@ def patch(data, version, company, copyright_):
               "-page target: page counts are estimated before the volumes are written, and a single "
               "day's conversations are never split across volumes.")
 
+    # 1.2.8: the "Account holder" field is now "Client Name - CMP#" (window, covers, help text).
+    fix_const("layout", "Account holder", CLIENT_LABEL, count=2)         # master index + volume covers
+    fix_const("layout", " from the account of ", " for client ")           # "About this archive"
+
     ver_code = pyz_code(raw, "version")
     old_v = next(c for c in ver_code.co_consts if isinstance(c, str) and c.count(".") == 2 and c.replace(".", "").isdigit())
     ver_code, hits = replace_const(ver_code, lambda c: c == old_v, version)
@@ -283,6 +289,20 @@ def patch(data, version, company, copyright_):
     pyz_put(raw, "version", ver_code)
 
     set_entry_data(pyz_e, write_pyz(header, order, raw))
+
+    # 1.2.8: window and command-line text in app.py (a script entry, not in the PYZ).
+    app_e = next(e for e in entries if e["name"] == "app")
+    app_code = marshal.loads(entry_data(app_e))
+    for old_t, new_t in (
+            ("Account holder:", CLIENT_LABEL + ":"),
+            ("account holder name shown on covers and footers",
+             'client name and CMP number shown on covers and footers, e.g. "Acme Corp - CMP12345"'),
+            ("(blank = next to the export; a ChatGPT_Archive_<owner>_<date> subfolder is created)",
+             "(blank = next to the export; a ChatGPT_Archive_<client>_<date> subfolder is created)")):
+        app_code, hits = replace_const(app_code, lambda c, o=old_t: type(c) is str and c == o, new_t)
+        if hits != 1:
+            raise SystemExit(f"app: expected one {old_t!r}, found {hits}")
+    set_entry_data(app_e, marshal.dumps(app_code))
 
     hook = marshal.dumps(compile_file(os.path.join(PATCHES, "pyi_rth_cgxfixes.py"), "pyi_rth_cgxfixes.py"))
     if "pyi_rth_cgxfixes" in names:

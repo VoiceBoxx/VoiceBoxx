@@ -13,6 +13,8 @@
    out up to 60% longer than the target. Attachments are now weighted by what they render as.
 5. Several exports dropped on the program at once: the program silently did nothing. They are
    now converted one after another in a progress window (see batch()).
+6. (1.2.8) Word "open saved file" links were URL-encoded twice and pointed at files that don't
+   exist. "#" is kept out of output folder names.
 """
 import os
 import re
@@ -152,10 +154,10 @@ class _PathProxy:
 
     @staticmethod
     def join(*parts):
-        p = os.path.join(*parts)
         if len(parts) == 2 and str(parts[1]).startswith("ChatGPT_Archive_"):
-            return claim_folder(p)
-        return p
+            # "#" (as in "CMP#12345") breaks links and some sync tools; keep it out of folder names
+            return claim_folder(os.path.join(parts[0], str(parts[1]).replace("#", "")))
+        return os.path.join(*parts)
 
 
 class _OsProxy(types.ModuleType):
@@ -210,10 +212,27 @@ def _patch_extract(extract):
     extract.estimate_pages = estimate_pages
 
 
+# ---- 6. Word attachment links ----------------------------------------------------------------
+_PCT = re.compile(r"%[0-9A-Fa-f]{2}")
+
+
+def _patch_render_docx(render_docx):
+    # The "open saved file" line already passes an encoded URL, and the hyperlink writer encoded
+    # it again ("002%2520-%2520photo.png"), so Word looked for a file that doesn't exist. Encode once.
+    orig = render_docx.file_url
+
+    def file_url(rel):
+        return rel if _PCT.search(rel or "") else orig(rel)
+
+    file_url.__doc__ = orig.__doc__
+    render_docx.file_url = file_url
+
+
 def apply():
-    import extract, layout, converter, render_pdf
+    import extract, layout, converter, render_pdf, render_docx
     for fn, mod in ((_patch_render_pdf, render_pdf), (_patch_layout, layout),
-                    (_patch_converter, converter), (_patch_extract, extract)):
+                    (_patch_converter, converter), (_patch_extract, extract),
+                    (_patch_render_docx, render_docx)):
         try:
             fn(mod)
         except Exception:

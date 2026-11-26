@@ -10,7 +10,7 @@ The program is low risk. It works offline, needs no admin rights, writes only th
 for, and handles untrusted file names safely. Every one of its 44 native binaries is
 byte-identical to the official python.org or PyPI build.
 
-The security review found 15 issues; 13 are fixed. A later design review found 8 more (D1-D8); 7 are fixed in @VERSION@ (D8 is open). Still open from the security review:
+The security review found 15 issues; 13 are fixed. A later design review found 9 more (D1-D9); 8 are fixed in @VERSION@ (D8 is open). Still open from the security review:
 
 * **F3, code signing:** needs your organisation's certificate. The build can now sign with one
   command.
@@ -101,6 +101,7 @@ match Windows. Word files were checked in their XML.
 | D5 | Low | Page estimates counted an embedded image or PDF page as ~0.1 page. Volumes ran 43-61% over the target, and the master index and the volumes gave different page counts. | **Improved.** Attachments are weighted by what they render as: 5-13% over target in the same test. |
 | D6 | Low | The master index's chronological table columns added up to 96% of the text width, so its right edge didn't line up with the page. | **Fixed.** |
 | D7 | Low | One export split into several JSON files was described as "three ChatGPT export files" / "three separate exports". The over-length note blamed day boundaries even when the estimate was the cause. | **Fixed** (wording). |
+| D9 | Low | Word files: "open saved file" links were URL-encoded twice (`002%2520-%2520photo.png`), so every attachment link pointed at a file that doesn't exist. Found in 1.2.8 testing. PDF links were correct. | **Fixed in 1.2.8.** All 16 links in the test archive resolve. |
 | D8 | Info | PDFs show right-to-left scripts (Arabic, Hebrew) reversed, and Arabic unjoined. ReportLab has no bidirectional shaping. The Word files are correct. | **Open.** It needs a shaping library that isn't bundled. Use the Word files for RTL content. |
 
 ## What was already done well

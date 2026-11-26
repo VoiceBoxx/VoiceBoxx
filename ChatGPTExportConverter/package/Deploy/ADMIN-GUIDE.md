@@ -346,7 +346,7 @@ New-NetFirewallRule -DisplayName "ChatGPT Export Converter - block outbound" -Di
 
 * **Input.** The user's ChatGPT export. This is personal data: full conversation history, uploaded
   files, images and voice recordings.
-* **Output.** A folder `ChatGPT_Archive_<owner>_<date>` with `.docx` and `.pdf` volumes and an
+* **Output.** A folder `ChatGPT_Archive_<client>_<date>` with `.docx` and `.pdf` volumes and an
   `Attachments` folder. It contains the same personal data. By default it goes **next to the
   export** (often `Downloads`, or a OneDrive-synced folder). Users can choose another folder, or
   `-o` on the command line.
@@ -364,14 +364,17 @@ New-NetFirewallRule -DisplayName "ChatGPT Export Converter - block outbound" -Di
 ## 12. Command-line use
 
 ```
-ChatGPTExportConverter.exe --cli EXPORT.zip [-o OUTPUT_DIR] [--owner "First Last"]
+ChatGPTExportConverter.exe --cli EXPORT.zip [-o OUTPUT_DIR] [--owner "Client Name - CMP#"]
         [--compiled YYYY-MM-DD] [--pages 300] [--no-branches] [--no-reasoning]
         [--no-images] [--no-tools] [--pdf-engine built-in|word|libreoffice]
 ChatGPTExportConverter.exe --version
 ```
 
 * `EXPORT` can be the export `.zip`, its extracted folder, or a `conversations*.json` file.
-* Each run writes a new folder `ChatGPT_Archive_<owner>_<date>` under `-o` (default: next to the
+* `--owner` fills the **Client Name - CMP#** field shown on the covers and in "About this archive",
+  for example `--owner "Acme Corp - CMP#12345"`. In the folder name, `#` is left out
+  (`ChatGPT_Archive_Acme_Corp_-_CMP12345_<date>`).
+* Each run writes a new folder `ChatGPT_Archive_<client>_<date>` under `-o` (default: next to the
   export). If that folder already exists, the run uses `... (2)`, `... (3)` and so on, so runs
   never overwrite or mix with each other, even in parallel.
 * Started with two or more existing files or folders and no options (for example several exports

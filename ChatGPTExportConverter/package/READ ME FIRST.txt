@@ -41,7 +41,8 @@ anywhere, such as a USB stick or a network share. To remove a copy like this, de
 
 COMMAND LINE
 ------------
-  ChatGPTExportConverter.exe --cli export.zip -o D:\Archives --owner "Jane Doe" --pages 300
+  ChatGPTExportConverter.exe --cli export.zip -o D:\Archives --owner "Acme Corp - CMP#12345" --pages 300
+  (--owner fills the "Client Name - CMP#" field)
   ChatGPTExportConverter.exe --version
 
 In a batch file, use "start /wait" so the script waits and gets the exit code (0 = success):

@@ -1,4 +1,4 @@
-1.2.7
+1.2.8
 Product:         ChatGPT Export Converter
 Package:         @VERSION@ (released @DATE@)
 Program file:    ChatGPTExportConverter.exe, FileVersion @VERSION@ (shown in the window and with --version)
@@ -10,7 +10,9 @@ Version history (details in CHANGELOG.txt)
 ------------------------------------------
 Version  Released    Program (.exe)  Summary                                        MSI ProductCode
 -------  ----------  --------------  ---------------------------------------------  --------------------------------------
-1.2.7    @DATE@  1.2.7           Design fixes: spacing and table alignment,     {7DC33B11-BCAC-4AE7-AC47-3FE198EEF068}
+1.2.8    @DATE@  1.2.8           "Account holder" renamed "Client Name - CMP#"; {A64CBA52-86A4-4FF3-A80A-BFCD69F94050}
+                                     Word attachment links fixed
+1.2.7    2026-11-25  1.2.7           Design fixes: spacing and table alignment,     {7DC33B11-BCAC-4AE7-AC47-3FE198EEF068}
                                      separate folder per run, several exports at
                                      once, page estimates, index table width
 1.2.6    2026-11-22  1.2.6           Installer options: desktop shortcut and        {F76E4101-A33D-431C-816D-34BDD3962DA8}

@@ -40,6 +40,7 @@ PRODUCT_CODES = {
     "1.2.5": "{1C87D975-25C3-4260-8426-9C3DDE98613F}",
     "1.2.6": "{F76E4101-A33D-431C-816D-34BDD3962DA8}",
     "1.2.7": "{7DC33B11-BCAC-4AE7-AC47-3FE198EEF068}",
+    "1.2.8": "{A64CBA52-86A4-4FF3-A80A-BFCD69F94050}",
 }
 TEXT_EXT = {".cmd", ".txt", ".md", ".ps1", ".svg"}
 CRLF_EXT = {".cmd", ".txt", ".md", ".ps1"}

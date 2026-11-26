@@ -1,7 +1,19 @@
 ChatGPT Export Converter - Changelog
 ====================================
 
-1.2.7  (@DATE@)  - Design fixes
+1.2.8  (@DATE@)  - Client Name - CMP#
+  - The "Account holder" field is now "Client Name - CMP#": in the window, on the covers of the
+    master index and every volume, and in the command-line help. "About this archive" now says
+    "... conversations for client Acme Corp - CMP#12345" instead of "from the account of ...".
+  - The command-line option is still --owner, so existing scripts keep working:
+    --owner "Acme Corp - CMP#12345"
+  - Output folders leave out "#", which breaks links and some sync tools:
+    ChatGPT_Archive_Acme_Corp_-_CMP12345_<date>. The documents show the value as typed.
+  - Fixed: "open saved file" links in the Word files pointed at files that don't exist (the
+    link was encoded twice, so "002 - photo.png" became "002%20-%20photo.png"). The PDF links
+    were already correct.
+
+1.2.7  (2026-11-25)  - Design fixes
   Found by a design review and stress tests: 150 conversations in 3 conversations-NNN.json files,
   113 attachments, two to three exports converted into the same folder, and exports dropped on
   the program together.
